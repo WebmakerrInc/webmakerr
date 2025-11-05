@@ -130,7 +130,7 @@ class uip_ui_builder extends uip_app
   public function add_ui_builder_to_menu()
   {
     // Only add the page on the primary network site if on multisite
-    $notNetworkSite = is_multisite() && !is_main_site() && is_plugin_active_for_network(uip_plugin_path_name . "/uipress-lite.php") ? true : false;
+    $notNetworkSite = is_multisite() && !is_main_site() && is_plugin_active_for_network(UIP_PLUGIN_BASENAME) ? true : false;
     if ($notNetworkSite) {
       return;
     }
@@ -175,7 +175,7 @@ class uip_ui_builder extends uip_app
       "type" => "module",
     ];
 
-    $path = plugins_url("uipress-lite/");
+    $path = uip_plugin_url;
 
     $variableFormatter = "
       const uipressLitePath = '{$path}';";

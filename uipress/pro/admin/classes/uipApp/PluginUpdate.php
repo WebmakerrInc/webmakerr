@@ -39,7 +39,7 @@ class PluginUpdate
       return $res;
     }
 
-    $plugin_slug = 'uipress-pro'; // we are going to use it in many places in this function
+    $plugin_slug = 'uipress'; // unified plugin slug
 
     // do nothing if it is not our plugin
     if ($plugin_slug !== $args->slug) {
@@ -168,8 +168,8 @@ class PluginUpdate
       // your installed plugin version should be on the line below! You can obtain it dynamically of course
       if ($remote && version_compare(self::$version, $remote->version, '<')) {
         $res = new \stdClass();
-        $res->slug = 'uipress-pro';
-        $res->plugin = 'uipress-pro/uipress-pro.php'; // it could be just YOUR_PLUGIN_SLUG.php if your plugin doesn't have its own directory
+        $res->slug = 'uipress';
+        $res->plugin = 'uipress/uipress.php';
         $res->new_version = $remote->version;
         $res->tested = $remote->tested;
         $res->package = $remote->download_url;

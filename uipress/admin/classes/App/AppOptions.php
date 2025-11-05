@@ -84,7 +84,7 @@ class AppOptions
     $options["uploadTypes"] = $cleanTypes;
     $options["locale"] = str_replace("_", "-", get_locale());
     $options["multisite"] = is_multisite();
-    $options["networkActivated"] = is_plugin_active_for_network(uip_plugin_path_name . "/uipress-lite.php");
+    $options["networkActivated"] = is_plugin_active_for_network(UIP_PLUGIN_BASENAME);
     $options["primarySite"] = is_main_site();
     $options["installedPlugins"] = $formattedPlugins;
     $options["activePlugins"] = array_unique(array_merge($active_plugins, $network_plugins));

@@ -25,14 +25,14 @@ class uipProApp
    */
   public static function load_scripts()
   {
-    $path = plugins_url('uipress-pro/');
+    $path = uip_pro_plugin_url;
     $version = uip_pro_plugin_version;
 
     wp_print_inline_script_tag("const uipProPath = '{$path}'", ['id' => 'uip-pro-path']);
 
     wp_print_script_tag([
       'id' => 'uip-pro-app-js',
-      'src' => "{$path}/app/dist/proapp.build.js?ver={$version}",
+      'src' => "{$path}app/dist/proapp.build.js?ver={$version}",
       'type' => 'module',
     ]);
   }

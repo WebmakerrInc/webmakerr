@@ -163,7 +163,7 @@ class UipScripts
   public static function get_cache_key()
   {
     $is_multisite = false;
-    if (is_multisite() && is_plugin_active_for_network(uip_plugin_path_name . "/uipress-lite.php") && !is_main_site()) {
+    if (is_multisite() && is_plugin_active_for_network(UIP_PLUGIN_BASENAME) && !is_main_site()) {
       $is_multisite = true;
     }
 
@@ -202,7 +202,7 @@ class UipScripts
 
     $rest_base = get_rest_url();
     $rest_nonce = wp_create_nonce("wp_rest");
-    $base_url = plugins_url("uipress-lite/");
+    $base_url = uip_plugin_url;
     $admin_url = get_admin_url();
     $site_url = get_home_url();
     $is_admin = is_admin();
@@ -278,7 +278,7 @@ class UipScripts
     $user_id = get_current_user_id();
     $templateID = get_transient("uip_template_active_" . $user_id);
 
-    if (is_multisite() && is_plugin_active_for_network(uip_plugin_path_name . "/uipress-lite.php") && !is_main_site()) {
+    if (is_multisite() && is_plugin_active_for_network(UIP_PLUGIN_BASENAME) && !is_main_site()) {
       $mainSiteId = get_main_site_id();
       switch_to_blog($mainSiteId);
       $multiSiteActive = true;

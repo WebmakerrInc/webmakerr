@@ -1,10 +1,10 @@
-=== UiPress lite | Effortless custom dashboards, admin themes and pages ===
+=== UiPress | Effortless custom dashboards, admin themes and pages ===
 Contributors: markuipress
 Tags: admin theme, custom dashboard, google analytics, woocommerce analytics, white label
 Requires at least: 6.0
 Requires PHP: 7.4
 Tested up to: 6.7
-Stable tag: 3.5.08
+Stable tag: 3.6.0
 License: GPLv2 or later
 
 Effortless custom WordPress admin dashboards.
@@ -13,7 +13,9 @@ Effortless custom WordPress admin dashboards.
 
 A block based visual builder for the WordPress admin. Create admin pages, dashboards and WordPress admin themes with no code. From custom dashboards, profile pages to entire admin frameworks, the uiBuilder can do it all. Pre-made intuitive blocks and a library of professional templates make it super easy to transform the way your site users interact with your content.
 
-### Major features in ui press lite include:
+As of version 3.6.0 UiPress bundles every feature from the former UiPress Lite and UiPress Pro plugins, so you can design, customise, and extend the WordPress admin from a single, unified package.
+
+### Major features in UiPress include:
 
 * A fast, modern and intuitive block based builder
 * Create functional admin pages and ui templates
@@ -29,6 +31,9 @@ A block based visual builder for the WordPress admin. Create admin pages, dashbo
 * User role editor
 * Private user posts and media
 * Integrated php error log
+* Advanced admin menu builder and content folders
+* Pro analytics blocks for Google, Matomo, Fathom and WooCommerce
+* User activity monitoring and management tools
 
 
 ### A powerful builder that lets you customise everything
@@ -55,12 +60,12 @@ Upload the UiPress plugin to your blog, activate it, and then navigate to the ui
 
 == Changelog ==
 
-= 3.5.08 =
+= 3.6.0 =
 * Release Date 13 May 2025*
 
-* Fixed potential security issue with forms block. 
-* Removed the ability to send form data to from form blocks.
-* Fixed issue with woocommerce header on mobile
+* Merged the UiPress Lite and UiPress Pro codebases into a single plugin.
+* Bundled all Pro assets, blocks, and admin extensions directly with UiPress.
+* Updated activation, translation, and update routines to support the unified build.
 
 = 3.5.07 =
 * Release Date 20 March 2025*
