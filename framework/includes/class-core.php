@@ -31,8 +31,8 @@ class Core
 
         $this->modules = [
             'ecommerce' => [
-                'title'       => __('eCommerce', 'framework'),
-                'description' => __('Enable FluentCart-powered commerce features.', 'framework'),
+                'title'       => 'eCommerce',
+                'description' => 'Enable FluentCart-powered commerce features.',
                 'module_file' => $module_file,
             ],
         ];
@@ -55,9 +55,22 @@ class Core
      */
     public function init(): void
     {
+        add_action('init', [$this, 'load_textdomain']);
         add_action('plugins_loaded', [$this, 'load_active_modules'], 20);
 
         ModulesPage::get_instance()->init($this);
+    }
+
+    /**
+     * Register plugin translations after WordPress has initialised.
+     */
+    public function load_textdomain(): void
+    {
+        load_plugin_textdomain(
+            'framework',
+            false,
+            dirname(plugin_basename(FRAMEWORK_PLUGIN_FILE)) . '/languages'
+        );
     }
 
     /**
