@@ -138,14 +138,16 @@ class Modules
                 <?php wp_nonce_field('framework_save_modules', 'framework_modules_nonce'); ?>
                 <div class="uip-grid uip-grid-col-1 uip-grid-gap-large">
                     <?php foreach ($this->modules as $slug => $module) :
-                        $is_active = in_array($slug, $active_modules, true);
+                        $is_active   = in_array($slug, $active_modules, true);
+                        $title       = $this->get_module_text($module, 'title', ucfirst($slug));
+                        $description = $this->get_module_text($module, 'description', '');
                         ?>
                         <div class="uip-background-default uip-border uip-border-round uip-padding-l">
                             <div class="uip-flex uip-flex-between uip-flex-center uip-gap-l">
                                 <div class="uip-flex uip-flex-column uip-gap-xs">
-                                    <span class="uip-text-xl uip-text-bold"><?php echo esc_html($module['title'] ?? ucfirst($slug)); ?></span>
-                                    <?php if (!empty($module['description'])) : ?>
-                                        <span class="uip-text-muted"><?php echo esc_html((string) $module['description']); ?></span>
+                                    <span class="uip-text-xl uip-text-bold"><?php echo esc_html($title); ?></span>
+                                    <?php if ($description !== '') : ?>
+                                        <span class="uip-text-muted"><?php echo esc_html($description); ?></span>
                                     <?php endif; ?>
                                 </div>
                                 <label class="uip-toggle uip-flex uip-flex-center">
@@ -174,5 +176,35 @@ class Modules
             </form>
         </div>
         <?php
+    }
+
+    /**
+     * Retrieve a translated string for module metadata.
+     *
+     * @param array<string, mixed> $module
+     */
+    private function get_module_text(array $module, string $key, string $fallback = ''): string
+    {
+        if (!array_key_exists($key, $module)) {
+            return $fallback;
+        }
+
+        $value = $module[$key];
+
+        if (is_callable($value)) {
+            $value = (string) $value($module);
+        }
+
+        if (!is_string($value)) {
+            return $fallback;
+        }
+
+        $translated = __($value, 'framework');
+
+        if (!is_string($translated) || $translated === '') {
+            return $fallback;
+        }
+
+        return $translated;
     }
 }
