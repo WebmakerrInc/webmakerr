@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" role="img" aria-labelledby="courseLeadTitle">
+  <title id="courseLeadTitle">AI leadership course thumbnail</title>
+  <rect width="240" height="160" rx="20" fill="#f4f7ff" />
+  <path d="M56 120l28-64 36 40 28-40 36 64" fill="none" stroke="#0b2855" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="120" cy="70" r="28" fill="#1f56c1" opacity="0.18" />
+  <path d="M110 92l10-30 10 30" stroke="#1a3d91" stroke-width="4" stroke-linecap="round" />
+  <circle cx="120" cy="54" r="10" fill="#1a3d91" />
+</svg>

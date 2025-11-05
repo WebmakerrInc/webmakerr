@@ -1,0 +1,4 @@
+[
+  { "key": "LIC-ABC-123", "status": "active" },
+  { "key": "LIC-XYZ-999", "status": "revoked" }
+]

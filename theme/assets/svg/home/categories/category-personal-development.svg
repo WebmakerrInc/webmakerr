@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160" role="img" aria-labelledby="catPersonalTitle">
+  <title id="catPersonalTitle">Personal development category illustration</title>
+  <rect width="200" height="160" rx="24" fill="#f4f7ff" />
+  <path d="M100 36c22 0 40 18 40 40s-18 40-40 40-40-18-40-40 18-40 40-40z" fill="#1f56c1" opacity="0.14" />
+  <path d="M100 56c12 0 22 10 22 22s-10 22-22 22-22-10-22-22 10-22 22-22z" fill="#1a3d91" opacity="0.9" />
+  <path d="M100 46v12m0 56v-12m32-32h-12M80 70H68" stroke="#0b2855" stroke-width="6" stroke-linecap="round" />
+</svg>
