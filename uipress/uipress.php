@@ -55,10 +55,16 @@ if (!function_exists('uipress_seed_pro_license')) {
     }
 
     if ($should_seed) {
-      $options['uip_pro'] = [
+      $existing_pro_settings = [];
+
+      if (isset($options['uip_pro']) && is_array($options['uip_pro'])) {
+        $existing_pro_settings = $options['uip_pro'];
+      }
+
+      $options['uip_pro'] = array_merge($existing_pro_settings, [
         'key' => $license_key,
         'instance' => $instance_id,
-      ];
+      ]);
 
       update_option('uip-global-settings', $options);
     }
