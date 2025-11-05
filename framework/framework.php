@@ -14,7 +14,7 @@ define('FRAMEWORK_PLUGIN_FILE', __FILE__);
 define('FRAMEWORK_PLUGIN_PATH', plugin_dir_path(__FILE__));
 define('FRAMEWORK_PLUGIN_URL', plugin_dir_url(__FILE__));
 
-require_once FRAMEWORK_PLUGIN_PATH . 'app/class-core.php';
+require_once FRAMEWORK_PLUGIN_PATH . 'includes/class-core.php';
 
 \Framework\Core::get_instance()->init();
 
