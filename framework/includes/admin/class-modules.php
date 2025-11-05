@@ -1,33 +1,27 @@
 <?php
-namespace Framework\Admin;
+namespace UiPress\Admin;
 
-use Framework\Core;
+use UiPress\Core;
 
 defined('ABSPATH') || exit;
 
 class Modules
 {
-    /**
-     * @var Modules|null
-     */
-    private static $instance = null;
+    private static ?Modules $instance = null;
 
-    /**
-     * @var Core|null
-     */
-    private $core = null;
+    private ?Core $core = null;
 
     /**
      * Stored modules metadata.
      *
      * @var array<string, array<string, mixed>>
      */
-    private $modules = [];
+    private array $modules = [];
 
     /**
      * @var string|null
      */
-    private $menu_hook = null;
+    private ?string $menu_hook = null;
 
     private function __construct()
     {
@@ -55,19 +49,24 @@ class Modules
     public function register_page(): void
     {
         $this->menu_hook = add_menu_page(
-            __('Modules', 'framework'),
-            __('Framework', 'framework'),
+            __('Modules', 'uipress'),
+            __('UiPress', 'uipress'),
             'manage_options',
-            'framework-modules',
+            'uipress-modules',
             [$this, 'render_page'],
-            'dashicons-admin-site',
+            'dashicons-screenoptions',
             56
         );
+
+        global $submenu;
+        if (isset($submenu['uipress-modules'][0][0])) {
+            $submenu['uipress-modules'][0][0] = __('Modules', 'uipress');
+        }
     }
 
     public function handle_form_submission(): void
     {
-        if (!isset($_POST['framework_modules_nonce'])) {
+        if (!isset($_POST['uipress_modules_nonce'])) {
             return;
         }
 
@@ -75,11 +74,12 @@ class Modules
             return;
         }
 
-        check_admin_referer('framework_save_modules', 'framework_modules_nonce');
+        check_admin_referer('uipress_save_modules', 'uipress_modules_nonce');
 
         $active = [];
-        if (isset($_POST['framework_modules']) && is_array($_POST['framework_modules'])) {
-            foreach ($_POST['framework_modules'] as $slug => $value) {
+        if (isset($_POST['uipress_modules']) && is_array($_POST['uipress_modules'])) {
+            $submitted = wp_unslash($_POST['uipress_modules']);
+            foreach ($submitted as $slug => $value) {
                 if ((string) $value !== '1') {
                     continue;
                 }
@@ -94,8 +94,8 @@ class Modules
 
         $redirect = add_query_arg(
             [
-                'page'                      => 'framework-modules',
-                'framework-modules-updated' => '1',
+                'page'                     => 'uipress-modules',
+                'uipress-modules-updated' => '1',
             ],
             admin_url('admin.php')
         );
@@ -111,31 +111,31 @@ class Modules
         }
 
         wp_enqueue_style(
-            'framework-admin-modules',
-            FRAMEWORK_PLUGIN_URL . 'assets/css/uip-app.css',
+            'uipress-admin-modules',
+            UIPRESS_MODULES_PLUGIN_URL . 'assets/css/uip-app.css',
             [],
-            FRAMEWORK_VERSION
+            UIPRESS_MODULES_VERSION
         );
     }
 
     public function render_page(): void
     {
         if (!current_user_can('manage_options')) {
-            wp_die(__('You do not have permission to access this page.', 'framework'));
+            wp_die(__('You do not have permission to access this page.', 'uipress'));
         }
 
         $active_modules = $this->core instanceof Core ? $this->core->get_active_modules() : [];
-        $updated        = isset($_GET['framework-modules-updated']);
+        $updated        = isset($_GET['uipress-modules-updated']);
         ?>
         <div class="wrap uip-app uip-padding-l uip-text-normal">
-            <h1 class="uip-text-2xl uip-margin-bottom-m"><?php esc_html_e('Modules', 'framework'); ?></h1>
+            <h1 class="uip-text-2xl uip-margin-bottom-m"><?php esc_html_e('Modules', 'uipress'); ?></h1>
             <?php if ($updated) : ?>
                 <div class="notice notice-success is-dismissible uip-margin-bottom-m">
-                    <p><?php esc_html_e('Module settings saved.', 'framework'); ?></p>
+                    <p><?php esc_html_e('Module settings saved.', 'uipress'); ?></p>
                 </div>
             <?php endif; ?>
             <form method="post">
-                <?php wp_nonce_field('framework_save_modules', 'framework_modules_nonce'); ?>
+                <?php wp_nonce_field('uipress_save_modules', 'uipress_modules_nonce'); ?>
                 <div class="uip-grid uip-grid-col-1 uip-grid-gap-large">
                     <?php foreach ($this->modules as $slug => $module) :
                         $is_active   = in_array($slug, $active_modules, true);
@@ -151,26 +151,26 @@ class Modules
                                     <?php endif; ?>
                                 </div>
                                 <label class="uip-toggle uip-flex uip-flex-center">
-                                    <input type="checkbox" name="framework_modules[<?php echo esc_attr($slug); ?>]" value="1" <?php checked($is_active); ?> />
+                                    <input type="checkbox" name="uipress_modules[<?php echo esc_attr($slug); ?>]" value="1" <?php checked($is_active); ?> />
                                     <span class="uip-toggle-slider" aria-hidden="true"></span>
                                     <span class="screen-reader-text">
                                         <?php echo $is_active
-                                            ? esc_html__('Disable module', 'framework')
-                                            : esc_html__('Enable module', 'framework'); ?>
+                                            ? esc_html__('Disable module', 'uipress')
+                                            : esc_html__('Enable module', 'uipress'); ?>
                                     </span>
                                 </label>
                             </div>
                             <div class="uip-margin-top-s uip-text-muted">
                                 <?php echo $is_active
-                                    ? esc_html__('Status: Enabled', 'framework')
-                                    : esc_html__('Status: Disabled', 'framework'); ?>
+                                    ? esc_html__('Status: Enabled', 'uipress')
+                                    : esc_html__('Status: Disabled', 'uipress'); ?>
                             </div>
                         </div>
                     <?php endforeach; ?>
                 </div>
                 <p class="submit uip-margin-top-l">
                     <button type="submit" class="button button-primary uip-button">
-                        <?php esc_html_e('Save Changes', 'framework'); ?>
+                        <?php esc_html_e('Save Changes', 'uipress'); ?>
                     </button>
                 </p>
             </form>
@@ -199,7 +199,7 @@ class Modules
             return $fallback;
         }
 
-        $translated = __($value, 'framework');
+        $translated = __($value, 'uipress');
 
         if (!is_string($translated) || $translated === '') {
             return $fallback;
