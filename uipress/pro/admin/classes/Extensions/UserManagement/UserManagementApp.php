@@ -237,7 +237,7 @@ class UserManagementApp
       'id' => 'uip-user-management-data',
       'src' => $userManagementScript,
       'type' => 'module',
-      'uipress-lite' => plugins_url('uipress-lite/'),
+      'uipress-lite' => uip_plugin_url,
       'capabilities' => json_encode(UserRoles::get_all_role_capabilities()),
       'defer' => true,
       'ajax_url' => $ajaxURL,

@@ -44,8 +44,10 @@ class uipress_compiler
    */
   public function activations_hooks()
   {
-    register_activation_hook(uip_plugin_path_name . "/uipress-lite.php", [$this, "add_required_caps"]);
-    register_deactivation_hook(uip_plugin_path_name . "/uipress-lite.php", [$this, "remove_required_caps"]);
+    if (defined('UIP_PLUGIN_MAIN_FILE')) {
+      register_activation_hook(UIP_PLUGIN_MAIN_FILE, [$this, 'add_required_caps']);
+      register_deactivation_hook(UIP_PLUGIN_MAIN_FILE, [$this, 'remove_required_caps']);
+    }
   }
 
   /**
@@ -99,7 +101,7 @@ class uipress_compiler
    */
   public function load_plugin_textdomain()
   {
-    add_action("init", [$this, "uipress_languages_loader"]);
+    add_action('init', [$this, 'uipress_languages_loader']);
   }
 
   /**
@@ -109,11 +111,14 @@ class uipress_compiler
    */
   public function uipress_languages_loader()
   {
-    load_plugin_textdomain("uipress-lite", false, dirname(dirname(plugin_basename(__FILE__))) . "/languages");
+    $base = dirname(plugin_basename(UIP_PLUGIN_MAIN_FILE));
+    load_plugin_textdomain('uipress', false, $base . '/languages');
+    load_plugin_textdomain(UIP_PLUGIN_LANG_DOMAIN_LITE, false, $base . '/languages');
+    load_plugin_textdomain(UIP_PLUGIN_LANG_DOMAIN_PRO, false, $base . '/pro/languages');
   }
 
   /**
-   * Checks the version of uipress pro and if it's before a specific level deativates the plugin
+   * Checks for legacy pro plugin installations and gracefully disables them
    *
    * @since 3.3.0
    */
@@ -124,40 +129,17 @@ class uipress_compiler
     }
     $all_plugins = get_plugins();
 
-    $plugin_slug = "uipress-pro/uipress-pro.php"; // Replace with the actual plugin file.
+    $plugin_slug = "uipress-pro/uipress-pro.php";
 
-    if (isset($all_plugins[$plugin_slug]) && $all_plugins[$plugin_slug]["Version"]) {
-      $plugin_version = $all_plugins[$plugin_slug]["Version"];
-      $plugin_version = floatval($plugin_version);
-      if ($plugin_version < 3.2) {
-        deactivate_plugins($plugin_slug);
-        $this->require_pro_upgrade_script($plugin_version);
-        add_action("admin_head", [$this, "flag_uipress_pro_version_error"], 99);
-      }
-    }
-  }
-
-  /**
-   * Requires the pro plugin update script to ensure you can still update
-   *
-   * @since 3.3.09
-   */
-  public function require_pro_upgrade_script($plugin_version)
-  {
-    if (class_exists("uip_pro_update")) {
+    if (!isset($all_plugins[$plugin_slug])) {
       return;
     }
 
-    if (!defined("uip_pro_plugin_version")) {
-      define("uip_pro_plugin_version", $plugin_version);
+    if (function_exists('is_plugin_active') && is_plugin_active($plugin_slug)) {
+      deactivate_plugins($plugin_slug);
     }
 
-    $other_plugin_path = WP_PLUGIN_DIR . "/uipress-pro/admin/classes/uip-update.php";
-    if (file_exists($other_plugin_path)) {
-      require_once $other_plugin_path;
-      $uip_pro_update = new uip_pro_update();
-      $uip_pro_update->run();
-    }
+    add_action('admin_notices', [$this, 'flag_uipress_pro_version_error']);
   }
 
   /**
@@ -167,8 +149,8 @@ class uipress_compiler
    */
   public function flag_uipress_pro_version_error()
   {
-    $class = "notice notice-warning";
-    $message = __("uiPress Pro needs to be updated to work with version uiPress lite version 3.3", "uipress-pro");
+    $class = 'notice notice-warning';
+    $message = __('The legacy UiPress Pro plugin has been detected and deactivated because all Pro features are now included in UiPress. You can safely remove the old plugin.', UIP_PLUGIN_LANG_DOMAIN_PRO);
 
     printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class), esc_html($message));
   }

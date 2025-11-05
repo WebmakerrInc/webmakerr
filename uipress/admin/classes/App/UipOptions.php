@@ -17,7 +17,7 @@ class UipOptions
     $isMultisite = is_multisite();
     $pluginActiveNetwork = true;
     if (function_exists("is_plugin_active_for_network")) {
-      $pluginActiveNetwork = is_plugin_active_for_network(uip_plugin_path_name . "/uipress-lite.php");
+      $pluginActiveNetwork = is_plugin_active_for_network(UIP_PLUGIN_BASENAME);
     }
     $isMainSite = is_main_site();
 

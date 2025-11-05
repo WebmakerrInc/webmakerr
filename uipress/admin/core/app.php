@@ -40,7 +40,8 @@ class uip_app
    */
   private function add_hooks()
   {
-    add_filter("plugin_action_links_uipress-lite/uipress-lite.php", ["UipressLite\Classes\Tables\PluginsTable", "add_builder_link"]);
+    $plugin_basename = plugin_basename(UIP_PLUGIN_MAIN_FILE);
+    add_filter("plugin_action_links_{$plugin_basename}", ["UipressLite\Classes\Tables\PluginsTable", "add_builder_link"]);
     add_action("plugins_loaded", [$this, "start_uipress_app"], 1);
     add_filter("register_post_type_args", [$this, "ensure_rest_for_admin_menus"], 10, 2);
     add_filter("rest_api_init", [$this, "ensure_rest_fields_for_admin_menus"]);

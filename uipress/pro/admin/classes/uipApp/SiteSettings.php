@@ -324,6 +324,7 @@ class SiteSettings
     $hidden = Objects::get_nested_property(self::$uip_site_settings_object, ['whiteLabel', 'hidePlugins']) ?? false;
 
     if ($hidden == 'uiptrue') {
+      unset($all_plugins['uipress/uipress.php']);
       unset($all_plugins['uipress-lite/uipress-lite.php']);
       unset($all_plugins['uipress-pro/uipress-pro.php']);
       return $all_plugins;

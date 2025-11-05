@@ -124,7 +124,7 @@ class MenuCreatorApp
       'id' => 'uip-menu-creator-app-data',
       'src' => $folderScript,
       'type' => 'module',
-      'uipress-lite' => plugins_url('uipress-lite/'),
+      'uipress-lite' => uip_plugin_url,
       'async' => true,
       'ajax_url' => $ajaxURL,
       'security' => $security,
@@ -143,7 +143,7 @@ class MenuCreatorApp
   {
     // Fetch templates from primary multisite installation Multisite
     $multiSiteActive = false;
-    if (is_multisite() && is_plugin_active_for_network(uip_plugin_path_name . '/uipress-lite.php') && !is_main_site()) {
+    if (is_multisite() && is_plugin_active_for_network(UIP_PLUGIN_BASENAME) && !is_main_site()) {
       $multiSiteActive = true;
     }
 
