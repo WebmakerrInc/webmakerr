@@ -160,6 +160,10 @@ class Registration_Rest_Controller {
 
                 $plans = apply_filters('multisite_registration_plan_list', (array) $plans, $query, $request);
 
+                if (! is_array($plans)) {
+                        $plans = (array) $plans;
+                }
+
                 return $this->prepare_success_response(
                         [
                                 'plans' => array_values($plans),
