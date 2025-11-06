@@ -1,0 +1,451 @@
+.register-page {
+    --register-max-width: min(1100px, 92vw);
+    --register-radius: 18px;
+    --register-border: rgba(17, 24, 39, 0.08);
+    --register-accent: #2563eb;
+    --register-accent-dark: #1d4ed8;
+    --register-muted: #6b7280;
+    --register-surface: #ffffff;
+    --register-soft-surface: rgba(255, 255, 255, 0.64);
+    --register-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
+    --register-gap: clamp(2rem, 5vw, 3.5rem);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #111827;
+    background-color: #f8fafc;
+}
+
+.register-container {
+    width: min(var(--register-max-width), 100%);
+    margin: 0 auto;
+    padding: clamp(3rem, 6vw, 4.5rem) clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.register-hero {
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.25), transparent 45%),
+        linear-gradient(135deg, #0f172a 0%, #1e293b 40%, #111827 100%);
+    color: #f8fafc;
+    text-align: center;
+}
+
+.register-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.35), transparent 40%);
+    opacity: 0.8;
+    pointer-events: none;
+}
+
+.register-hero > .register-container {
+    position: relative;
+    z-index: 1;
+    padding-top: clamp(5rem, 10vw, 7rem);
+    padding-bottom: clamp(5rem, 10vw, 7rem);
+}
+
+.register-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.875rem;
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    background: rgba(148, 163, 184, 0.2);
+    color: rgba(226, 232, 240, 0.9);
+    margin-bottom: 1.5rem;
+}
+
+.register-hero__title {
+    font-size: clamp(2.75rem, 6vw, 3.5rem);
+    line-height: 1.07;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.register-hero__subtitle {
+    font-size: clamp(1.125rem, 3vw, 1.35rem);
+    line-height: 1.7;
+    max-width: 54ch;
+    margin: 0 auto;
+    color: rgba(226, 232, 240, 0.85);
+}
+
+.register-section-heading {
+    text-align: center;
+    margin-bottom: clamp(2.25rem, 6vw, 3rem);
+}
+
+.register-section-heading__title {
+    font-size: clamp(2rem, 4.2vw, 2.7rem);
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.register-section-heading__subtitle {
+    font-size: 1.0625rem;
+    color: var(--register-muted);
+    max-width: 52ch;
+    margin: 0.25rem auto 0;
+}
+
+.register-plans {
+    background: linear-gradient(180deg, rgba(241, 245, 249, 1) 0%, rgba(255, 255, 255, 1) 100%);
+}
+
+.register-plan-wrapper {
+    position: relative;
+}
+
+.register-plan-list {
+    display: grid;
+    gap: 1.75rem;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.register-plan-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 2.25rem 2rem;
+    border-radius: var(--register-radius);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: var(--register-surface);
+    box-shadow: 0 10px 35px rgba(15, 23, 42, 0.05);
+    text-align: left;
+    transition: transform 240ms ease, box-shadow 240ms ease, border-color 240ms ease;
+    cursor: pointer;
+}
+
+.register-plan-card:focus-visible {
+    outline: 3px solid rgba(37, 99, 235, 0.25);
+    outline-offset: 3px;
+}
+
+.register-plan-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 14px 40px rgba(15, 23, 42, 0.12);
+}
+
+.register-plan-card__badge {
+    display: none;
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    background: rgba(37, 99, 235, 0.14);
+    color: #1d4ed8;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+}
+
+.register-plan-card[data-plan-recommended="true"] .register-plan-card__badge {
+    display: inline-flex;
+    align-items: center;
+}
+
+.register-plan-card__name {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.register-plan-card__price {
+    font-size: 1.3125rem;
+    font-weight: 600;
+    display: flex;
+    align-items: baseline;
+    gap: 0.35rem;
+}
+
+.register-plan-card__price-suffix {
+    font-size: 0.9375rem;
+    color: var(--register-muted);
+    font-weight: 500;
+}
+
+.register-plan-card__description {
+    font-size: 0.98rem;
+    color: var(--register-muted);
+    line-height: 1.6;
+}
+
+.register-plan-card__features {
+    display: grid;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.95rem;
+    color: #0f172a;
+}
+
+.register-plan-card__features li::before {
+    content: "";
+    display: inline-block;
+    width: 0.6rem;
+    height: 0.6rem;
+    margin-right: 0.5rem;
+    border-radius: 50%;
+    background: rgba(37, 99, 235, 0.38);
+}
+
+.register-plan-card--selected,
+.register-plan-card[aria-pressed="true"] {
+    border-color: rgba(37, 99, 235, 0.6);
+    box-shadow: var(--register-shadow);
+    transform: translateY(-8px);
+}
+
+.register-plan-card--selected .register-plan-card__badge,
+.register-plan-card[aria-pressed="true"] .register-plan-card__badge {
+    display: inline-flex;
+    background: var(--register-accent);
+    color: #f8fafc;
+}
+
+.register-plan-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    font-size: 1rem;
+    color: var(--register-muted);
+}
+
+.register-form {
+    background: #ffffff;
+}
+
+.register-form__container {
+    display: grid;
+    gap: clamp(2rem, 5vw, 3rem);
+    align-items: start;
+}
+
+.register-form__intro {
+    display: grid;
+    gap: 1rem;
+}
+
+.register-plan-summary {
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: baseline;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    background: rgba(37, 99, 235, 0.08);
+    color: #1d4ed8;
+    font-weight: 500;
+    width: fit-content;
+}
+
+.register-plan-summary__value {
+    font-weight: 600;
+}
+
+.register-signup-form {
+    display: grid;
+    gap: 1.35rem;
+    padding: clamp(2rem, 4vw, 2.5rem);
+    border-radius: calc(var(--register-radius) + 6px);
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    background: var(--register-surface);
+    box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
+}
+
+.register-field {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.register-field__label {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #0f172a;
+}
+
+.register-field__input {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    background: rgba(248, 250, 252, 0.8);
+    font-size: 1rem;
+    transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+.register-field__input:focus {
+    outline: none;
+    border-color: rgba(37, 99, 235, 0.75);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.16);
+    background: #ffffff;
+}
+
+.register-field__input[data-state="error"],
+.register-field__input:invalid[data-state="error"] {
+    border-color: rgba(220, 38, 38, 0.8);
+    box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.15);
+}
+
+.register-field__input[data-state="success"] {
+    border-color: rgba(34, 197, 94, 0.75);
+    box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.18);
+}
+
+.register-field__feedback {
+    min-height: 1.25rem;
+    font-size: 0.85rem;
+    color: var(--register-muted);
+}
+
+.register-field__feedback[data-state="error"] {
+    color: #dc2626;
+    font-weight: 500;
+}
+
+.register-field__feedback[data-state="success"] {
+    color: #15803d;
+    font-weight: 500;
+}
+
+.register-site-input {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    background: rgba(15, 23, 42, 0.04);
+    border-radius: 12px;
+}
+
+.register-site-input .register-field__input {
+    border: none;
+    background: transparent;
+    border-radius: 12px 0 0 12px;
+}
+
+.register-site-suffix {
+    padding: 0 1.25rem;
+    font-weight: 600;
+    color: #0f172a;
+    font-size: 0.95rem;
+}
+
+.register-submit {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.95rem 1.5rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--register-accent) 0%, var(--register-accent-dark) 100%);
+    color: #f8fafc;
+    font-weight: 600;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+}
+
+.register-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px rgba(37, 99, 235, 0.4);
+}
+
+.register-submit:focus-visible {
+    outline: 3px solid rgba(37, 99, 235, 0.4);
+    outline-offset: 2px;
+}
+
+.register-submit:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+    box-shadow: none;
+    transform: none;
+}
+
+.register-terms {
+    font-size: 0.85rem;
+    color: var(--register-muted);
+    text-align: center;
+    line-height: 1.5;
+}
+
+.register-terms a {
+    color: var(--register-accent);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.register-terms a:hover {
+    text-decoration: underline;
+}
+
+@media (min-width: 900px) {
+    .register-form__container {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    }
+
+    .register-form__intro {
+        position: sticky;
+        top: 4rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .register-plan-card {
+        padding: 1.75rem 1.5rem;
+    }
+
+    .register-site-input {
+        grid-template-columns: 1fr;
+    }
+
+    .register-site-input .register-field__input {
+        border-radius: 12px 12px 0 0;
+        border: 1px solid rgba(15, 23, 42, 0.12);
+    }
+
+    .register-site-suffix {
+        justify-self: stretch;
+        text-align: center;
+        padding: 0.75rem 1rem;
+        border: 1px solid rgba(15, 23, 42, 0.12);
+        border-top: none;
+        border-radius: 0 0 12px 12px;
+        background: rgba(15, 23, 42, 0.04);
+    }
+}
+
+[data-register-plan-wrapper][data-loading="true"]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: var(--register-radius);
+    background: linear-gradient(90deg, rgba(248, 250, 252, 0) 0%, rgba(148, 163, 184, 0.14) 45%, rgba(248, 250, 252, 0) 90%);
+    animation: register-shimmer 1.8s infinite;
+}
+
+@keyframes register-shimmer {
+    0% {
+        transform: translateX(-50%);
+    }
+    50% {
+        transform: translateX(50%);
+    }
+    100% {
+        transform: translateX(150%);
+    }
+}
+
+.register-signup-form[data-submitting="true"] {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.register-field__input[aria-busy="true"] {
+    cursor: progress;
+}
