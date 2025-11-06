@@ -235,10 +235,8 @@ class Registration_Rest_Controller {
                         return $preflight;
                 }
 
-                $payload             = $preflight['payload'];
-                $plan                = $preflight['plan'];
-                $existing_user_id    = $preflight['existing_user_id'];
-                $password_to_update  = $preflight['password_to_update'];
+                $payload = $preflight['payload'];
+                $plan    = $preflight['plan'];
 
                 if (empty($payload['products'])) {
                         $error = new WP_Error(
@@ -285,10 +283,6 @@ class Registration_Rest_Controller {
                         }
 
                         return $result;
-                }
-
-                if ($existing_user_id && $password_to_update !== '') {
-                        wp_set_password($password_to_update, $existing_user_id);
                 }
 
                 do_action('wu_registration_controller_success', $result, $payload, $this->registration_controller);
@@ -521,19 +515,13 @@ class Registration_Rest_Controller {
                                 ?? ($customer_payload['password'] ?? ($raw_params['customer_password'] ?? ''))
                 );
 
-                $password_to_update = '';
-
                 if ($existing_user) {
-                        if ($password !== '') {
-                                if ( ! $this->is_password_strong_enough($password)) {
-                                        $errors['password'] = sprintf(
-                                                /* translators: %d: minimum password length */
-                                                __('Passwords must be at least %d characters long.', 'ultimate-multisite'),
-                                                $this->get_password_min_length()
-                                        );
-                                } else {
-                                        $password_to_update = $password;
-                                }
+                        if ($password !== '' && ! $this->is_password_strong_enough($password)) {
+                                $errors['password'] = sprintf(
+                                        /* translators: %d: minimum password length */
+                                        __('Passwords must be at least %d characters long.', 'ultimate-multisite'),
+                                        $this->get_password_min_length()
+                                );
                         }
                 } else {
                         if ($password === '') {
@@ -625,9 +613,8 @@ class Registration_Rest_Controller {
 
                 return [
                         'payload'            => $payload,
-                        'plan'               => $plan,
-                        'existing_user_id'   => $existing_user ? (int) $existing_user->ID : 0,
-                        'password_to_update' => $password_to_update,
+                        'plan'             => $plan,
+                        'existing_user_id' => $existing_user ? (int) $existing_user->ID : 0,
                 ];
         }
 
