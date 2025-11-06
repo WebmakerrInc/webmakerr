@@ -121,6 +121,7 @@ $plan_data = function_exists('webmakerr_register_get_plan_data')
                 novalidate
             >
                 <input type="hidden" name="plan_id" value="" data-register-selected-plan>
+                <?php wp_nonce_field('wu_registration_submit', 'wu_registration_nonce'); ?>
 
                 <div class="register-field">
                     <label class="register-field__label" for="register-full-name"><?php echo esc_html__('Full name', 'webmakerr'); ?></label>

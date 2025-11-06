@@ -346,17 +346,22 @@ add_action(
         wp_enqueue_script(
             'webmakerr-register',
             $theme_uri.'/resources/js/register.js',
-            ['wp-api-fetch'],
+            [],
             $version,
             true
         );
+
+        $request_nonce = wp_create_nonce('wu_registration_request');
 
         wp_localize_script(
             'webmakerr-register',
             'webmakerrRegisterData',
             [
-                'nonce'     => wp_create_nonce('wp_rest'),
-                'restRoute' => 'webmakerr/v1/register-availability',
+                'nonce'     => $request_nonce,
+                'endpoints' => [
+                    'plans'    => esc_url_raw(rest_url('multisite/api/register/plans')),
+                    'validate' => esc_url_raw(rest_url('multisite/api/register/validate')),
+                ],
                 'plans'     => webmakerr_register_get_plan_data(),
                 'strings'   => [
                     'planUnavailable' => __('Plans are unavailable right now. Please try again later.', 'webmakerr'),
@@ -377,6 +382,10 @@ add_action(
                             'available' => __('This site address is available.', 'webmakerr'),
                         ],
                         'password' => __('Password must be at least 8 characters.', 'webmakerr'),
+                    ],
+                    'errors'         => [
+                        'generic' => __('Something went wrong. Please try again.', 'webmakerr'),
+                        'nonce'   => __('Your session has expired. Please refresh the page and try again.', 'webmakerr'),
                     ],
                 ],
             ]
