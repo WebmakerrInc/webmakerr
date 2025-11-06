@@ -305,10 +305,25 @@ class Registration_Rest_Controller {
 
                 do_action('wu_registration_controller_success', $result, $payload, $this->registration_controller);
 
+                $default_redirect = $this->determine_default_redirect($raw_params, $request);
+
+                if ( ! $plan) {
+                        $plan = $this->plan_service->resolve_plan_from_signup_context($result, $payload);
+                }
+
+                $destination = $this->plan_service->resolve_onboarding_destination($plan, [
+                        'request'          => $raw_params,
+                        'payload'          => $payload,
+                        'result'           => $result,
+                        'default_redirect' => $default_redirect,
+                ]);
+
                 $response = rest_ensure_response(
                         [
-                                'success' => true,
-                                'result'  => $result,
+                                'success'                  => true,
+                                'result'                   => $result,
+                                'redirect_to'              => $destination,
+                                'registration_destination' => $destination,
                         ]
                 );
 
@@ -594,6 +609,34 @@ class Registration_Rest_Controller {
                 $body_params = is_array($body_params) ? $body_params : [];
 
                 return array_merge($body_params, $json_params);
+        }
+
+        /**
+         * Determine the default redirect URL to use after signup completes.
+         *
+         * @since 2.8.0
+         *
+         * @param array<string,mixed> $raw_params Raw request parameters.
+         * @param WP_REST_Request     $request    REST request instance.
+         * @return string
+         */
+        protected function determine_default_redirect(array $raw_params, WP_REST_Request $request): string {
+
+                $redirect = isset($raw_params['redirect_to']) ? (string) $raw_params['redirect_to'] : '';
+
+                if ($redirect === '') {
+                        $referer = (string) $request->get_header('referer');
+
+                        if ($referer !== '') {
+                                $redirect = $referer;
+                        }
+                }
+
+                if ($redirect === '') {
+                        $redirect = \home_url('/');
+                }
+
+                return \esc_url_raw($redirect);
         }
 
         /**

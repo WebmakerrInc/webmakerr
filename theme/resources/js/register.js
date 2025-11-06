@@ -18,6 +18,68 @@
         ? window.CSS.escape.bind(window.CSS)
         : (value) => String(value).replace(/[^a-zA-Z0-9_-]/g, '_');
 
+    function clearRegistrationQuery() {
+        if (!window.history || typeof window.history.replaceState !== 'function') {
+            return;
+        }
+
+        try {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('registration');
+            url.searchParams.delete('registration_destination');
+            window.history.replaceState({}, '', url.toString());
+        } catch (error) {
+            // Ignore environments where URL parsing is unavailable.
+        }
+    }
+
+    function resolveRedirectTarget(destination) {
+        if (typeof destination !== 'string' || destination === '') {
+            return '';
+        }
+
+        try {
+            return new URL(destination, window.location.origin).href;
+        } catch (error) {
+            return '';
+        }
+    }
+
+    function maybeHandleSuccessRedirect() {
+        try {
+            const params = new URLSearchParams(window.location.search);
+
+            if (params.get('registration') !== 'success') {
+                return;
+            }
+
+            const destinationParam = params.get('registration_destination');
+
+            if (!destinationParam) {
+                clearRegistrationQuery();
+                return;
+            }
+
+            const targetUrl = resolveRedirectTarget(destinationParam);
+
+            if (!targetUrl) {
+                clearRegistrationQuery();
+                return;
+            }
+
+            if (targetUrl === window.location.href) {
+                clearRegistrationQuery();
+                return;
+            }
+
+            window.location.replace(targetUrl);
+        } catch (error) {
+            // If URLSearchParams is unavailable, fall back to leaving the page as is.
+        }
+    }
+
+    maybeHandleSuccessRedirect();
+
     if (!planContainer || !form) {
         return;
     }
