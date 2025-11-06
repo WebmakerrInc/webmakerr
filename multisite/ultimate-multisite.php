@@ -106,6 +106,7 @@ try {
 
 require_once __DIR__ . '/services/class-plan-service.php';
 require_once __DIR__ . '/controllers/class-registration-controller.php';
+require_once __DIR__ . '/controllers/class-registration-rest-controller.php';
 
 require_once __DIR__ . '/vendor/woocommerce/action-scheduler/action-scheduler.php';
 

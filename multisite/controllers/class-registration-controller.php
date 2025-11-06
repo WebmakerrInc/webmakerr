@@ -60,6 +60,50 @@ class Registration_Controller {
         }
 
         /**
+         * Prepare a sanitized signup payload using the controller routines.
+         *
+         * Exposes the internal payload normalization so it can be reused by
+         * other entry-points (e.g. REST controllers) without duplicating the
+         * sanitization logic in this controller.
+         *
+         * @since 2.5.0
+         *
+         * @param array $request Raw request payload.
+         * @return array<string,mixed>
+         */
+        public function prepare_signup_payload(array $request): array {
+
+                return $this->build_signup_payload($request);
+        }
+
+        /**
+         * Resolve the selected plan identifier from a raw request.
+         *
+         * @since 2.5.0
+         *
+         * @param array $request Raw request payload.
+         * @return int|string|null
+         */
+        public function resolve_plan_identifier_from_request(array $request) {
+
+                return $this->resolve_plan_identifier($request);
+        }
+
+        /**
+         * Ensure the selected plan is present on the provided product list.
+         *
+         * @since 2.5.0
+         *
+         * @param array<int> $products Current product identifiers.
+         * @param int        $plan_id  Plan product identifier.
+         * @return array<int>
+         */
+        public function ensure_products_include_plan(array $products, int $plan_id): array {
+
+                return $this->merge_products_with_plan($products, $plan_id);
+        }
+
+        /**
          * Returns the normalized plan catalog for consumers.
          *
          * @since 2.5.0
