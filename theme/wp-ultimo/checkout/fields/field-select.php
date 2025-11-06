@@ -27,11 +27,11 @@ $select_classes  = trim('w-full rounded border border-zinc-200 bg-white px-3 py-
     <?php $field->print_html_attributes(); ?>
   >
     <?php if ($field->placeholder) : ?>
-      <option <?php checked(! $field->value); ?> class="text-zinc-500"><?php echo esc_html($field->placeholder); ?></option>
+      <option value="" <?php selected(! $field->value); ?> class="text-zinc-500"><?php echo esc_html($field->placeholder); ?></option>
     <?php endif; ?>
 
     <?php foreach ($field->options as $key => $label) : ?>
-      <option value="<?php echo esc_attr($key); ?>" <?php checked($key, $field->value); ?>>
+      <option value="<?php echo esc_attr($key); ?>" <?php selected($key, $field->value); ?>>
         <?php echo esc_html($label); ?>
       </option>
     <?php endforeach; ?>
