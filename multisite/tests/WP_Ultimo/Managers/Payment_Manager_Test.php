@@ -172,28 +172,46 @@ class Payment_Manager_Test extends WP_UnitTestCase {
 	/**
 	 * Test invoice_viewer method with missing key parameter.
 	 */
-	public function test_invoice_viewer_with_missing_key(): void {
-		// Set action and reference but not key
-		$_REQUEST['action']    = 'invoice';
-		$_REQUEST['reference'] = self::$payment->get_hash();
+        public function test_invoice_viewer_with_missing_key(): void {
+                // Set action and reference but not key
+                $_REQUEST['action']    = 'invoice';
+                $_REQUEST['reference'] = self::$payment->get_hash();
 
-		$reflection = new \ReflectionClass($this->payment_manager);
-		$method     = $reflection->getMethod('invoice_viewer');
-		$method->setAccessible(true);
+                $reflection = new \ReflectionClass($this->payment_manager);
+                $method     = $reflection->getMethod('invoice_viewer');
+                $method->setAccessible(true);
 
-		// Method should return early without doing anything
-		ob_start();
-		$method->invoke($this->payment_manager);
-		$output = ob_get_clean();
+                // Method should return early without doing anything
+                ob_start();
+                $method->invoke($this->payment_manager);
+                $output = ob_get_clean();
 
-		$this->assertEmpty($output, 'Method should return early when key parameter is missing');
+                $this->assertEmpty($output, 'Method should return early when key parameter is missing');
 
-		// Clean up request parameters
-		unset($_REQUEST['action'], $_REQUEST['reference']);
-	}
+                // Clean up request parameters
+                unset($_REQUEST['action'], $_REQUEST['reference']);
+        }
 
-	public static function tear_down_after_class() {
-		global $wpdb;
+        public function test_rest_routes_are_registered_for_payment_manager(): void {
+                $this->assertNotFalse(has_action('rest_api_init', [$this->payment_manager, 'register_routes_general']));
+                $this->assertNotFalse(has_action('rest_api_init', [$this->payment_manager, 'register_routes_with_id']));
+        }
+
+        public function test_filter_schema_arguments_removes_line_items_field(): void {
+                $schema = [
+                        'total'      => ['type' => 'number'],
+                        'line_items' => ['type' => 'array'],
+                        'status'     => ['type' => 'string'],
+                ];
+
+                $filtered = $this->payment_manager->filter_schema_arguments($schema);
+
+                $this->assertArrayNotHasKey('line_items', $filtered);
+                $this->assertArrayHasKey('status', $filtered);
+        }
+
+        public static function tear_down_after_class() {
+                global $wpdb;
 
 		// Clean up test data
 		if (self::$payment) {
