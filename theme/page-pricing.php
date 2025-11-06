@@ -13,7 +13,7 @@ if (! defined('ABSPATH')) {
 get_header();
 
 $plans          = [];
-$product_class  = '\\WP_Ultimo\\Models\\Product';
+$product_class  = '\WP_Ultimo\Models\Product';
 $has_product_cls = class_exists($product_class);
 
 if (function_exists('wu_get_plans') && $has_product_cls) {
