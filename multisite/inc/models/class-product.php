@@ -221,13 +221,29 @@ class Product extends Base_Model implements Limitable {
 	 */
 	protected $price_variations;
 
-	/**
-	 * Available add-ons.
-	 *
-	 * @since 2.0.0
-	 * @var array
-	 */
-	protected $available_addons;
+        /**
+         * Available add-ons.
+         *
+         * @since 2.0.0
+         * @var array
+         */
+        protected $available_addons;
+
+        /**
+         * Optional onboarding URL used after registration completes.
+         *
+         * @since 2.6.0
+         * @var string|null
+         */
+        protected $onboarding_url;
+
+        /**
+         * Site template automatically assigned during signup.
+         *
+         * @since 2.6.0
+         * @var int|null
+         */
+        protected $onboarding_site_template;
 
 	/**
 	 * The group of this product.
@@ -1170,12 +1186,72 @@ class Product extends Base_Model implements Limitable {
 	 * @param array $feature_list A list (array) of features of the product.
 	 * @return void
 	 */
-	public function set_feature_list($feature_list): void {
+        public function set_feature_list($feature_list): void {
 
-		$this->meta['feature_list'] = $feature_list;
+                $this->meta['feature_list'] = $feature_list;
 
-		$this->feature_list = $this->meta['feature_list'];
-	}
+                $this->feature_list = $this->meta['feature_list'];
+        }
+
+        /**
+         * Retrieve the onboarding URL associated with the product.
+         *
+         * @since 2.6.0
+         * @return string
+         */
+        public function get_onboarding_url(): string {
+
+                if (null === $this->onboarding_url) {
+                        $this->onboarding_url = (string) $this->get_meta('onboarding_url', '');
+                }
+
+                return (string) $this->onboarding_url;
+        }
+
+        /**
+         * Define the onboarding URL associated with the product.
+         *
+         * @since 2.6.0
+         * @param string $onboarding_url Plan onboarding URL.
+         * @return void
+         */
+        public function set_onboarding_url($onboarding_url): void {
+
+                $this->meta['onboarding_url'] = $onboarding_url ? (string) $onboarding_url : '';
+
+                $this->onboarding_url = $this->meta['onboarding_url'];
+        }
+
+        /**
+         * Return the site template that should be pre-selected during signup.
+         *
+         * @since 2.6.0
+         * @return int
+         */
+        public function get_onboarding_site_template(): int {
+
+                if (null === $this->onboarding_site_template) {
+                        $this->onboarding_site_template = (int) $this->get_meta('onboarding_site_template', 0);
+                }
+
+                return (int) $this->onboarding_site_template;
+        }
+
+        /**
+         * Persist the onboarding site template identifier.
+         *
+         * @since 2.6.0
+         * @param int|string $template_id Template identifier.
+         * @return void
+         */
+        public function set_onboarding_site_template($template_id): void {
+
+                $template_id = (int) $template_id;
+
+                $this->meta['onboarding_site_template'] = $template_id;
+
+                $this->onboarding_site_template = $template_id;
+        }
 
 	/**
 	 * Get the customer role to force customers to be on this plan.

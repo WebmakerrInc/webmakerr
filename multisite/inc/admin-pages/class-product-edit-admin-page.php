@@ -720,6 +720,46 @@ class Product_Edit_Admin_Page extends Edit_Admin_Page {
 			],
 		];
 
+		$sections['registration'] = [
+			'title'  => __('Registration', 'ultimate-multisite'),
+			'desc'   => __('Control plan-specific onboarding behavior used during customer registration.', 'ultimate-multisite'),
+			'icon'   => 'dashicons-welcome-learn-more',
+			'v-show' => 'product_type === "plan"',
+			'fields' => [
+				'meta[onboarding_url]' => [
+					'type'        => 'text',
+					'title'       => __('Onboarding URL', 'ultimate-multisite'),
+					'placeholder' => __('https://example.com/welcome', 'ultimate-multisite'),
+					'desc'        => __('Send new signups on this plan to a custom onboarding URL after checkout completes.', 'ultimate-multisite'),
+					'value'       => $this->get_object()->get_onboarding_url(),
+					'html_attr'   => [
+						'type' => 'url',
+					],
+				],
+				'meta[onboarding_site_template]' => [
+					'type'        => 'select',
+					'title'       => __('Default Site Template', 'ultimate-multisite'),
+					'placeholder' => __('Follow checkout defaults', 'ultimate-multisite'),
+					'desc'        => __('Automatically pre-select a site template whenever this plan is chosen. Leave blank to respect the checkout form template rules.', 'ultimate-multisite'),
+					'value'       => $this->get_object()->get_onboarding_site_template(),
+					'options'     => function () {
+						$options = [
+							0 => __('— Follow checkout defaults —', 'ultimate-multisite'),
+						];
+
+						foreach (wu_get_site_templates() as $site_template) {
+							$options[ $site_template->get_id() ] = $site_template->get_title();
+						}
+
+						return $options;
+					},
+					'wrapper_html_attr' => [
+						'v-cloak' => '1',
+					],
+				],
+			],
+		];
+
 		$sections['price-variations'] = [
 			'title'  => __('Price Variations', 'ultimate-multisite'),
 			'desc'   => __('Discounts for longer membership commitments.', 'ultimate-multisite'),
