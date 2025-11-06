@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" role="img" aria-labelledby="courseGenTitle">
+  <title id="courseGenTitle">Generative AI course thumbnail</title>
+  <defs>
+    <linearGradient id="genGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b2855" />
+      <stop offset="100%" stop-color="#1f56c1" />
+    </linearGradient>
+  </defs>
+  <rect width="240" height="160" rx="20" fill="#f4f7ff" />
+  <rect x="20" y="20" width="200" height="120" rx="16" fill="url(#genGradient)" opacity="0.95" />
+  <circle cx="120" cy="80" r="40" fill="#f7faff" opacity="0.85" />
+  <path d="M120 52l12 18h-24l12-18zm0 56l-12-18h24l-12 18z" fill="#1f56c1" opacity="0.85" />
+  <circle cx="120" cy="80" r="10" fill="#0b2855" />
+</svg>

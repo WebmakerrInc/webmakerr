@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" role="img" aria-labelledby="courseUxTitle">
+  <title id="courseUxTitle">UX strategy course thumbnail</title>
+  <rect width="240" height="160" rx="20" fill="#f3f6fc" />
+  <path d="M56 116c24-40 48-60 76-60s52 20 76 60" stroke="#1f56c1" stroke-width="6" stroke-linecap="round" fill="none" />
+  <circle cx="120" cy="80" r="32" fill="#1f56c1" opacity="0.12" />
+  <rect x="96" y="56" width="48" height="48" rx="12" fill="#0b2855" opacity="0.9" />
+  <path d="M108 88h24" stroke="#f7faff" stroke-width="6" stroke-linecap="round" />
+  <circle cx="132" cy="72" r="6" fill="#8fbcff" />
+</svg>

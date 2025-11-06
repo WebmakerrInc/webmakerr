@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="careerPythonTitle">
+  <title id="careerPythonTitle">Python developer career icon</title>
+  <rect width="96" height="96" rx="20" fill="#eef4ff" />
+  <rect x="22" y="30" width="52" height="36" rx="10" fill="#1f56c1" opacity="0.9" />
+  <path d="M34 48h28" stroke="#f7faff" stroke-width="4" stroke-linecap="round" />
+  <path d="M30 38h20" stroke="#c7dfff" stroke-width="4" stroke-linecap="round" />
+  <circle cx="58" cy="38" r="6" fill="#90c4ff" />
+  <path d="M24 66h48" stroke="#d0ddf6" stroke-width="4" stroke-linecap="round" />
+</svg>

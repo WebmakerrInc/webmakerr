@@ -1,0 +1,130 @@
+.webmakerr-license-page {
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+    color: #111827;
+}
+
+.webmakerr-license-title {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.webmakerr-license-description {
+    font-size: 1rem;
+    color: #4b5563;
+    max-width: 640px;
+}
+
+.webmakerr-license-card {
+    margin-top: 1.5rem;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.75rem;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+    max-width: 640px;
+}
+
+.webmakerr-license-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.webmakerr-license-input {
+    width: 100%;
+    max-width: 420px;
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    background-color: #f9fafb;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.webmakerr-license-input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+    outline: none;
+}
+
+.webmakerr-license-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.webmakerr-license-button.button-primary {
+    background: linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%);
+    border-color: transparent;
+    border-radius: 9999px;
+    padding: 0.6rem 1.6rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-transform: none;
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.webmakerr-license-button.button-primary:hover,
+.webmakerr-license-button.button-primary:focus {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 24px rgba(37, 99, 235, 0.35);
+}
+
+.webmakerr-license-spinner {
+    width: 16px;
+    height: 16px;
+    border-radius: 9999px;
+    border: 2px solid #cbd5f5;
+    border-top-color: #2563eb;
+    animation: webmakerr-spin 0.75s linear infinite;
+}
+
+@keyframes webmakerr-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.webmakerr-license-status {
+    margin-top: 1.5rem;
+    font-size: 0.95rem;
+    color: #1f2937;
+    display: flex;
+    gap: 0.5rem;
+    align-items: baseline;
+}
+
+.webmakerr-license-status span {
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+#webmakerr-license-status-text.status-active {
+    color: #047857;
+}
+
+#webmakerr-license-status-text.status-revoked,
+#webmakerr-license-status-text.status-invalid {
+    color: #b91c1c;
+}
+
+#webmakerr-license-status-text.status-inactive {
+    color: #6b7280;
+}
+
+.webmakerr-license-feedback {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.webmakerr-license-feedback.success {
+    color: #047857;
+}
+
+.webmakerr-license-feedback.error {
+    color: #b91c1c;
+}
