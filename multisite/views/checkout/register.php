@@ -1,6 +1,61 @@
 <?php
 defined('ABSPATH') || exit;
 
+wp_add_inline_style(
+        'wu-checkout',
+        <<<'CSS'
+.wu-register-flow input,
+.wu-register-flow select,
+.wu-register-flow textarea {
+        color: #0f172a;
+}
+
+.wu-register-flow input::placeholder,
+.wu-register-flow input::-webkit-input-placeholder,
+.wu-register-flow input::-moz-placeholder,
+.wu-register-flow input:-moz-placeholder,
+.wu-register-flow input::-ms-input-placeholder,
+.wu-register-flow input:-ms-input-placeholder,
+.wu-register-flow select::placeholder,
+.wu-register-flow select::-webkit-input-placeholder,
+.wu-register-flow select::-moz-placeholder,
+.wu-register-flow select:-moz-placeholder,
+.wu-register-flow select::-ms-input-placeholder,
+.wu-register-flow select:-ms-input-placeholder,
+.wu-register-flow textarea::placeholder,
+.wu-register-flow textarea::-webkit-input-placeholder,
+.wu-register-flow textarea::-moz-placeholder,
+.wu-register-flow textarea:-moz-placeholder,
+.wu-register-flow textarea::-ms-input-placeholder,
+.wu-register-flow textarea:-ms-input-placeholder {
+        color: #64748b;
+        opacity: 1;
+}
+CSS
+);
+
+$wu_register_hide_title_filter = static function ($title, $post_id) {
+        if (is_admin() || ! in_the_loop()) {
+                return $title;
+        }
+
+        $queried_id = get_queried_object_id();
+
+        if ($queried_id && (int) $post_id === (int) $queried_id) {
+                return '';
+        }
+
+        return $title;
+};
+
+add_filter('the_title', $wu_register_hide_title_filter, 10, 2);
+add_action(
+        'loop_end',
+        static function () use ($wu_register_hide_title_filter) {
+                remove_filter('the_title', $wu_register_hide_title_filter, 10);
+        }
+);
+
 wp_add_inline_script(
         'wu-checkout',
         "(function(){\n  window.wuScrollToSignupForm = function(){\n    var card = document.getElementById('wu-signup-card');\n    if (!card) {\n      return;\n    }\n    window.requestAnimationFrame(function(){\n      card.scrollIntoView({ behavior: 'smooth', block: 'start' });\n    });\n  };\n})();",
