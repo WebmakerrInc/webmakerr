@@ -405,6 +405,7 @@ class Registration_Rest_Controller {
 
                 $candidates = [
                         $request->get_header('x-wu-registration-nonce'),
+                        $request->get_header('x-wp-nonce'),
                         $request->get_header('x_wp_nonce'),
                         $request->get_param('wu_registration_nonce'),
                         $request->get_param('_wpnonce'),
