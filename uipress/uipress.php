@@ -37,37 +37,14 @@ if (!function_exists('uipress_seed_pro_license')) {
 
     $options = get_option('uip-global-settings');
 
-    if (!is_array($options)) {
-      $options = [];
-    }
-
-    $should_seed = false;
-
     if (!isset($options['uip_pro']) || !is_array($options['uip_pro'])) {
-      $should_seed = true;
-    } else {
-      $existing_key = isset($options['uip_pro']['key']) ? trim((string) $options['uip_pro']['key']) : '';
-      $existing_instance = isset($options['uip_pro']['instance']) ? trim((string) $options['uip_pro']['instance']) : '';
-
-      if ($existing_key === '' && $existing_instance === '') {
-        $should_seed = true;
-      }
+      $options['uip_pro'] = [];
     }
 
-    if ($should_seed) {
-      $existing_pro_settings = [];
+    $options['uip_pro']['key'] = $license_key;
+    $options['uip_pro']['instance'] = $instance_id;
 
-      if (isset($options['uip_pro']) && is_array($options['uip_pro'])) {
-        $existing_pro_settings = $options['uip_pro'];
-      }
-
-      $options['uip_pro'] = array_merge($existing_pro_settings, [
-        'key' => $license_key,
-        'instance' => $instance_id,
-      ]);
-
-      update_option('uip-global-settings', $options);
-    }
+    update_option('uip-global-settings', $options);
   }
 }
 
