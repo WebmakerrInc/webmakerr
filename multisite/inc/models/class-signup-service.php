@@ -198,12 +198,30 @@ class Signup_Service {
                                 'author_id' => $customer->get_user_id(),
                         ]);
 
-                        $payment_method = $this->normalize_payment_method($params);
-
                         $cart = $this->build_cart($params);
 
                         if (is_wp_error($cart)) {
                                 return $this->rollback_and_return($cart);
+                        }
+
+                        $payment_method = $this->normalize_payment_method($params);
+
+                        $free_checkout = $this->is_free_checkout($cart);
+
+                        if ($free_checkout && empty($payment_method['gateway'])) {
+                                $payment_method['gateway'] = 'free';
+                        }
+
+                        if ( ! $free_checkout && $cart->should_collect_payment() && empty($payment_method['gateway'])) {
+                                return $this->rollback_and_return(
+                                        new WP_Error(
+                                                'missing_gateway',
+                                                __('A payment gateway is required to complete this subscription.', 'ultimate-multisite'),
+                                                [
+                                                        'status' => 400,
+                                                ]
+                                        )
+                                );
                         }
 
                         list($membership, $membership_status) = $this->create_membership($params, $cart, $customer, $payment_method);
@@ -218,10 +236,42 @@ class Signup_Service {
                                 return $this->rollback_and_return($payment);
                         }
 
+                        $cart->set_membership($membership);
+                        $cart->set_customer($customer);
+                        $cart->set_payment($payment);
+
+                        $payment->update_meta('wu_original_cart', $cart);
+
                         $site = $this->maybe_provision_site($params, $membership);
 
                         if (is_wp_error($site)) {
                                 return $this->rollback_and_return($site);
+                        }
+
+                        if ($free_checkout) {
+                                $membership_status = Membership_Status::ACTIVE;
+                                $payment_status    = Payment_Status::COMPLETED;
+
+                                $payment->add_note([
+                                        'text'      => sprintf(
+                                                /* translators: %s: formatted payment total. */
+                                                __('Free plan checkout completed. Logged transaction total: %s.', 'ultimate-multisite'),
+                                                wu_format_currency($payment->get_total(), $payment->get_currency())
+                                        ),
+                                        'author_id' => $customer->get_user_id(),
+                                ]);
+                        } elseif ($cart->should_collect_payment()) {
+                                $gateway_result = $this->process_gateway_checkout($cart, $payment_method, $payment, $membership, $customer, $params);
+
+                                if (is_wp_error($gateway_result)) {
+                                        return $this->rollback_and_return($gateway_result);
+                                }
+
+                                $membership_status = $membership->get_status();
+                                $payment_status    = $payment->get_status();
+                        } else {
+                                $membership_status = $membership->get_status();
+                                $payment_status    = $payment->get_status();
                         }
 
                         if ($membership->get_status() !== $membership_status) {
@@ -271,6 +321,10 @@ class Signup_Service {
                                 'customer'   => $customer->to_array(),
                                 'payment'    => $payment->to_array(),
                                 'site'       => $site ?: ['id' => 0],
+                                'status'     => [
+                                        'membership' => $membership->get_status(),
+                                        'payment'    => $payment->get_status(),
+                                ],
                         ];
                 } catch (\Throwable $exception) {
                         $wpdb->query('ROLLBACK'); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
@@ -502,6 +556,14 @@ class Signup_Service {
                  */
                 $membership_data = apply_filters('wu_signup_service_membership_data', $membership_data, $params, $cart, $customer, $payment_method, $this);
 
+                if ($this->is_free_checkout($cart)) {
+                        $membership_data['status'] = Membership_Status::ACTIVE;
+
+                        if (empty($membership_data['gateway'])) {
+                                $membership_data['gateway'] = 'free';
+                        }
+                }
+
                 $membership_status = wu_get_isset($membership_data, 'status', Membership_Status::PENDING);
 
                 unset($membership_data['status']);
@@ -571,6 +633,14 @@ class Signup_Service {
                  */
                 $payment_data = apply_filters('wu_signup_service_payment_data', $payment_data, $params, $cart, $customer, $membership, $payment_method, $this);
 
+                if ($this->is_free_checkout($cart)) {
+                        $payment_data['status'] = Payment_Status::COMPLETED;
+
+                        if (empty($payment_data['gateway'])) {
+                                $payment_data['gateway'] = 'free';
+                        }
+                }
+
                 $payment = wu_create_payment($payment_data);
 
                 if (is_wp_error($payment)) {
@@ -583,6 +653,92 @@ class Signup_Service {
                 ]);
 
                 return [$payment, $payment_status];
+        }
+
+        /**
+         * Determine if the current checkout qualifies as a free plan.
+         *
+         * @since 2.5.0
+         *
+         * @param Cart $cart Cart instance.
+         * @return bool
+         */
+        protected function is_free_checkout(Cart $cart): bool {
+
+                return $cart->is_free() && (float) $cart->get_recurring_total() === 0.0;
+        }
+
+        /**
+         * Process a paid checkout using the configured payment gateway.
+         *
+         * @since 2.5.0
+         *
+         * @param Cart       $cart           Cart instance.
+         * @param array      $payment_method Normalized payment method payload.
+         * @param Payment    $payment        Payment instance.
+         * @param Membership $membership     Membership instance.
+         * @param Customer   $customer       Customer instance.
+         * @param array      $params         Original signup parameters.
+         * @return true|WP_Error
+         */
+        protected function process_gateway_checkout(Cart $cart, array $payment_method, Payment $payment, Membership $membership, Customer $customer, array $params)
+        {
+
+                $gateway_id = isset($payment_method['gateway']) ? sanitize_key($payment_method['gateway']) : '';
+
+                if ($gateway_id === '') {
+                        return new WP_Error(
+                                'missing_gateway',
+                                __('A payment gateway is required to complete this subscription.', 'ultimate-multisite'),
+                                [
+                                        'status' => 400,
+                                ]
+                        );
+                }
+
+                $gateway = wu_get_gateway($gateway_id);
+
+                if ( ! $gateway) {
+                        return new WP_Error(
+                                'invalid_gateway',
+                                __('The selected payment gateway is not available.', 'ultimate-multisite'),
+                                [
+                                        'status' => 400,
+                                ]
+                        );
+                }
+
+                $gateway->set_order($cart);
+
+                $type = isset($params['type']) ? sanitize_key($params['type']) : '';
+
+                if ($type === '' && isset($params['cart_type'])) {
+                        $type = sanitize_key($params['cart_type']);
+                }
+
+                if ($type === '') {
+                        $type = 'new';
+                }
+
+                try {
+                        $result = $gateway->process_checkout($payment, $membership, $customer, $cart, $type);
+                } catch (\Throwable $exception) {
+                        wu_maybe_log_error($exception);
+
+                        return new WP_Error(
+                                'payment_processing_failed',
+                                $exception->getMessage(),
+                                [
+                                        'status' => 502,
+                                ]
+                        );
+                }
+
+                if (is_wp_error($result)) {
+                        return $result;
+                }
+
+                return true;
         }
 
         /**
