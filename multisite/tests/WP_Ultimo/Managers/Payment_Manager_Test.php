@@ -65,10 +65,11 @@ class Payment_Manager_Test extends WP_UnitTestCase {
 		$this->expectException(\WPDieException::class);
 		$this->expectExceptionMessage('This invoice does not exist.');
 
-		$method->invoke($this->payment_manager);
-
-		// Clean up request parameters
-		unset($_REQUEST['action'], $_REQUEST['reference'], $_REQUEST['key']);
+		try {
+			$method->invoke($this->payment_manager);
+		} finally {
+			unset($_REQUEST['action'], $_REQUEST['reference'], $_REQUEST['key']);
+		}
 	}
 
 	/**
@@ -91,10 +92,11 @@ class Payment_Manager_Test extends WP_UnitTestCase {
 		$this->expectException(\WPDieException::class);
 		$this->expectExceptionMessage('You do not have permissions to access this file.');
 
-		$method->invoke($this->payment_manager);
-
-		// Clean up request parameters
-		unset($_REQUEST['action'], $_REQUEST['reference'], $_REQUEST['key']);
+		try {
+			$method->invoke($this->payment_manager);
+		} finally {
+			unset($_REQUEST['action'], $_REQUEST['reference'], $_REQUEST['key']);
+		}
 	}
 
 	/**
@@ -117,10 +119,11 @@ class Payment_Manager_Test extends WP_UnitTestCase {
 		$this->expectException(\WPDieException::class);
 		$this->expectExceptionMessage('This invoice does not exist.');
 
-		$method->invoke($this->payment_manager);
-
-		// Clean up request parameters
-		unset($_REQUEST['action'], $_REQUEST['reference'], $_REQUEST['key']);
+		try {
+			$method->invoke($this->payment_manager);
+		} finally {
+			unset($_REQUEST['action'], $_REQUEST['reference'], $_REQUEST['key']);
+		}
 	}
 
 	/**
@@ -211,8 +214,6 @@ class Payment_Manager_Test extends WP_UnitTestCase {
         }
 
         public static function tear_down_after_class() {
-                global $wpdb;
-
 		// Clean up test data
 		if (self::$payment) {
 			self::$payment->delete();
@@ -220,10 +221,6 @@ class Payment_Manager_Test extends WP_UnitTestCase {
 		if (self::$customer) {
 			self::$customer->delete();
 		}
-
-		// Clean up database tables
-		$wpdb->query("TRUNCATE TABLE {$wpdb->prefix}wu_payments");
-		$wpdb->query("TRUNCATE TABLE {$wpdb->prefix}wu_customers");
 
 		parent::tear_down_after_class();
 	}
