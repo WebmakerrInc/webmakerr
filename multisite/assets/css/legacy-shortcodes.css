@@ -2273,28 +2273,32 @@ body .wp-filter-responsive select {
 }
 
 .wu-content-plan {
-  margin: 0;
-  padding: 0;
+  margin: 0 auto;
+  padding: 0 24px 40px;
+  max-width: 1200px;
   vertical-align: top;
   box-sizing: border-box;
   -moz-box-sizing: border-box;
   text-align: center;
-  padding: 0;
 }
 .wu-content-plan .layer.plans {
-  max-width: 1100px;
   width: 100%;
   margin: 0 auto;
 }
 .wu-content-plan h4 {
   margin-bottom: 12px;
-  font-size: 1em;
-  font-weight: 400;
+  font-size: 0.95rem;
+  font-weight: 600;
   text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 .wu-content-plan h5 {
-  font-size: 24px;
+  font-size: 2.5rem;
+  line-height: 1.1;
   margin: 0;
+  font-weight: 600;
+  color: #1d2733;
+  padding: 0 24px 8px;
 }
 .wu-content-plan.wu-content-plan p {
   margin-top: 10px;
@@ -2319,6 +2323,9 @@ body .wp-filter-responsive select {
   height: auto;
   padding: 30px 0;
   display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: center;
 }
 .wu-content-plan .layer > section,
 .wu-content-plan .layer > article {
@@ -2335,76 +2342,103 @@ body .wp-filter-responsive select {
   display: inline-block;
 }
 .wu-content-plan .plan-tier {
-  background: white;
+  background: #fff;
   vertical-align: baseline;
-  border-radius: 3px;
-  -moz-border-radius: 3px;
+  border-radius: 12px;
   cursor: pointer;
   overflow: hidden;
-  float: left;
-  margin-top: 39px;
-  padding-left: 0;
-  padding-right: 0;
+  margin-top: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  flex: 1 1 260px;
+  max-width: 320px;
+  min-width: 260px;
+  border: 1px solid rgba(39, 65, 90, 0.1);
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .wu-content-plan .wp-ui-primary {
   background: var(--wp--preset--color--vivid-cyan-blue);
 }
 .wu-content-plan .lift {
   position: relative;
-  -webkit-transition: all 0.075s ease-out;
-  -moz-transition: all 0.075s ease-out;
-  -o-transition: all 0.075s ease-out;
-  transition: all 0.075s ease-out;
+  -webkit-transition: transform 0.2s ease, box-shadow 0.2s ease;
+  -moz-transition: transform 0.2s ease, box-shadow 0.2s ease;
+  -o-transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .wu-content-plan .lift:hover {
-  top: -5px;
-  -webkit-box-shadow: 0 2px 6px rgba(39, 65, 90, 0.15);
-  -moz-box-shadow: 0 2px 6px rgba(39, 65, 90, 0.15);
-  box-shadow: 0 2px 6px rgba(39, 65, 90, 0.15);
+  top: 0;
+  -webkit-box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+  -moz-box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+  -webkit-transform: translateY(-6px);
+  -moz-transform: translateY(-6px);
+  -ms-transform: translateY(-6px);
+  -o-transform: translateY(-6px);
+  transform: translateY(-6px);
 }
 .wu-content-plan .plan-tier h4 {
-  padding: 10px;
-  margin: 0 0 30px;
-  color: white;
+  padding: 20px 24px;
+  margin: 0;
+  color: #fff;
 }
 .wu-content-plan .plan-tier {
   cursor: pointer;
 }
 .wu-content-plan .plan-tier sup {
+  font-size: 0.6em;
   position: relative;
-  right: -9px;
+  top: -0.6em;
+  margin-right: 6px;
 }
 .wu-content-plan .plan-tier ul {
   margin: 0;
   padding: 0;
-  border-top: 2px solid #e7f2f0;
+  border-top: 1px solid rgba(39, 65, 90, 0.08);
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
 }
 .wu-content-plan .plan-tier ul li {
-  font-size: 12px;
-  padding: 10px 0 !important;
+  font-size: 0.95rem;
+  padding: 12px 24px !important;
   color: rgba(39, 65, 90, 0.9);
-  border-bottom: 2px solid #e7f2f0;
+  border-bottom: 1px solid rgba(39, 65, 90, 0.08);
+  text-align: left;
 }
 .wu-content-plan .plan-tier ul li.wu-cta {
   border-bottom: none;
+  margin-top: auto;
+  background: #f8fafc;
+  padding: 20px 24px !important;
 }
 .wu-content-plan sup {
   padding-right: 10px;
 }
 .wu-content-plan .plan-tier .plan-price {
-  font-size: 2em;
-  font-weight: 300;
-  letter-spacing: -3px;
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 2px;
+  font-size: 1em;
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 .wu-content-plan .plan-tier sub {
-  vertical-align: bottom;
+  vertical-align: baseline;
   position: relative;
-  bottom: 0.875em;
+  bottom: 0;
+  font-size: 0.875rem;
+  color: rgba(39, 65, 90, 0.7);
 }
 .wu-content-plan .plan-tier .early-adopter-price {
-  color: #0091e5;
-  margin-top: 15px;
-  margin-bottom: 0;
+  color: #2d6cdf;
+  margin: 12px 24px 0;
+  font-size: 0.875rem;
+  text-align: left;
 }
 .wu-content-plan p:first-of-type {
   margin-top: 0;
@@ -2425,12 +2459,59 @@ body .wp-filter-responsive select {
 }
 .wu-content-plan .plan-tier.callout {
   margin-top: 0;
+  border: 2px solid var(--wp--preset--color--vivid-cyan-blue);
+  box-shadow: 0 20px 45px rgba(13, 148, 210, 0.25);
 }
 .wu-content-plan .plan-tier.callout h6 {
   margin: 0 !important;
-  padding: 10px;
-  font-size: 14px;
+  padding: 12px 24px;
+  font-size: 0.85rem;
   text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  background: rgba(13, 148, 210, 0.12);
+  color: #0b5f8a;
+}
+.wu-content-plan .plan-tier p,
+.wu-content-plan .plan-tier .early-adopter-price,
+.wu-content-plan .plan-tier ul li {
+  width: 100%;
+}
+.wu-content-plan .plan-tier ul li.wu-cta .button,
+.wu-content-plan .plan-tier ul li.wu-cta .button-primary {
+  width: 100%;
+  padding: 12px 18px;
+  font-size: 0.95rem;
+  border-radius: 6px;
+  box-shadow: none;
+}
+.wu-content-plan .plan-tier ul li.wu-cta .button-primary {
+  text-transform: none;
+  font-weight: 600;
+}
+.wu-content-plan .plan-tier ul li.wu-cta .button-primary:focus,
+.wu-content-plan .plan-tier ul li.wu-cta .button-primary:hover {
+  box-shadow: 0 8px 18px rgba(13, 148, 210, 0.35);
+}
+@media (max-width: 1024px) {
+  .wu-content-plan {
+    padding: 0 16px 32px;
+  }
+  .wu-content-plan .plan-tier {
+    flex: 1 1 280px;
+  }
+}
+@media (max-width: 680px) {
+  .wu-content-plan .plan-tier {
+    max-width: 100%;
+    min-width: 0;
+  }
+  .wu-content-plan h5 {
+    font-size: 2.1rem;
+  }
+  .wu-content-plan .plan-tier ul li {
+    padding: 12px 20px !important;
+  }
 }
 .wu-plans-frequency-selector {
   display: inline-block;
