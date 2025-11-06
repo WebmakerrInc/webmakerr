@@ -99,7 +99,6 @@
         }
 
         if (requestNonce) {
-            headers['X-WP-Nonce'] = requestNonce;
             headers['X-WU-Registration-Nonce'] = requestNonce;
         }
 
