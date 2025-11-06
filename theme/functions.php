@@ -103,6 +103,150 @@ function webmakerr(): Theme
         ]));
 }
 
+if (! function_exists('webmakerr_register_get_plan_data')) {
+    function webmakerr_register_get_plan_data(): array
+    {
+        $plans         = [];
+        $plan_data     = [];
+        $product_class = '\\WP_Ultimo\\Models\\Product';
+
+        if (function_exists('wu_get_plans') && class_exists($product_class)) {
+            $fetched = wu_get_plans([
+                'orderby' => 'list_order',
+                'order'   => 'ASC',
+            ]);
+
+            $plans = array_filter(
+                is_array($fetched) ? $fetched : [],
+                static function ($plan) use ($product_class): bool {
+                    if (! is_a($plan, $product_class)) {
+                        return false;
+                    }
+
+                    if (method_exists($plan, 'is_active') && ! $plan->is_active()) {
+                        return false;
+                    }
+
+                    return ! method_exists($plan, 'get_type') || $plan->get_type() === 'plan';
+                }
+            );
+        }
+
+        foreach ($plans as $plan) {
+            $plan_id = method_exists($plan, 'get_id') ? (string) $plan->get_id() : '';
+
+            if ($plan_id === '') {
+                continue;
+            }
+
+            $name = '';
+            if (method_exists($plan, 'get_name')) {
+                $name = (string) $plan->get_name();
+            } elseif (method_exists($plan, 'get_title')) {
+                $name = (string) $plan->get_title();
+            }
+
+            $description = '';
+            if (method_exists($plan, 'get_short_description')) {
+                $description = (string) $plan->get_short_description();
+            } elseif (method_exists($plan, 'get_description')) {
+                $description = (string) $plan->get_description();
+            }
+
+            $price_string = '';
+            if (method_exists($plan, 'get_price_html')) {
+                $price_string = wp_strip_all_tags((string) $plan->get_price_html());
+            } elseif (method_exists($plan, 'get_price')) {
+                $price_string = (string) $plan->get_price();
+            }
+
+            $price_suffix = '';
+            if (method_exists($plan, 'get_meta')) {
+                $suffix_meta = $plan->get_meta('price_suffix');
+                if (is_string($suffix_meta)) {
+                    $price_suffix = $suffix_meta;
+                }
+            }
+
+            $raw_features = [];
+            if (method_exists($plan, 'get_signup_benefits')) {
+                $raw_features = $plan->get_signup_benefits();
+            } elseif (method_exists($plan, 'get_meta')) {
+                $raw_features = $plan->get_meta('signup_benefits');
+            }
+
+            if (is_string($raw_features)) {
+                $raw_features = preg_split('/[\r\n]+/', $raw_features) ?: [];
+            }
+
+            $features = array_values(
+                array_filter(
+                    array_map(
+                        static fn ($feature) => wp_strip_all_tags((string) $feature),
+                        is_array($raw_features) ? $raw_features : []
+                    )
+                )
+            );
+
+            $plan_data[] = [
+                'id'           => $plan_id,
+                'name'         => $name !== '' ? $name : sprintf(__('Plan %s', 'webmakerr'), $plan_id),
+                'description'  => $description !== '' ? wp_strip_all_tags($description) : '',
+                'price'        => $price_string !== '' ? $price_string : '',
+                'priceSuffix'  => $price_suffix !== '' ? wp_strip_all_tags($price_suffix) : '',
+                'recommended'  => method_exists($plan, 'is_featured_plan') && $plan->is_featured_plan(),
+                'features'     => $features,
+            ];
+        }
+
+        if ($plan_data === []) {
+            $plan_data = [
+                [
+                    'id'           => 'starter',
+                    'name'         => __('Starter', 'webmakerr'),
+                    'description'  => __('Launch essentials for new brands.', 'webmakerr'),
+                    'price'        => __('$19', 'webmakerr'),
+                    'priceSuffix'  => __('per month', 'webmakerr'),
+                    'recommended'  => false,
+                    'features'     => [
+                        __('Unlimited templates', 'webmakerr'),
+                        __('Integrated payments', 'webmakerr'),
+                        __('Basic automation', 'webmakerr'),
+                    ],
+                ],
+                [
+                    'id'           => 'growth',
+                    'name'         => __('Growth', 'webmakerr'),
+                    'description'  => __('Advanced marketing tools for scaling teams.', 'webmakerr'),
+                    'price'        => __('$49', 'webmakerr'),
+                    'priceSuffix'  => __('per month', 'webmakerr'),
+                    'recommended'  => true,
+                    'features'     => [
+                        __('All Starter features', 'webmakerr'),
+                        __('Automated funnels', 'webmakerr'),
+                        __('Priority support', 'webmakerr'),
+                    ],
+                ],
+                [
+                    'id'           => 'scale',
+                    'name'         => __('Scale', 'webmakerr'),
+                    'description'  => __('Enterprise-grade performance with concierge onboarding.', 'webmakerr'),
+                    'price'        => __('$149', 'webmakerr'),
+                    'priceSuffix'  => __('per month', 'webmakerr'),
+                    'recommended'  => false,
+                    'features'     => [
+                        __('Dedicated success manager', 'webmakerr'),
+                        __('Unlimited staff accounts', 'webmakerr'),
+                        __('Custom integrations', 'webmakerr'),
+                    ],
+                ],
+            ];
+        }
+
+        return array_values($plan_data);
+    }
+}
+
 add_filter(
     'nav_menu_css_class',
     static function (array $classes, $item, $args, int $depth): array {
@@ -168,6 +312,76 @@ add_action(
         webmakerr();
     },
     11
+);
+
+add_action(
+    'wp_enqueue_scripts',
+    static function (): void {
+        if (! function_exists('is_page') || ! is_page()) {
+            return;
+        }
+
+        $object = get_queried_object();
+
+        if (! ($object instanceof WP_Post)) {
+            return;
+        }
+
+        $slug = sanitize_title($object->post_name ?? '');
+
+        if ($slug !== 'register') {
+            return;
+        }
+
+        $theme_uri = get_template_directory_uri();
+        $version   = wp_get_theme()->get('Version');
+
+        wp_enqueue_style(
+            'webmakerr-register',
+            $theme_uri.'/resources/css/register.css',
+            [],
+            $version
+        );
+
+        wp_enqueue_script(
+            'webmakerr-register',
+            $theme_uri.'/resources/js/register.js',
+            ['wp-api-fetch'],
+            $version,
+            true
+        );
+
+        wp_localize_script(
+            'webmakerr-register',
+            'webmakerrRegisterData',
+            [
+                'nonce'     => wp_create_nonce('wp_rest'),
+                'restRoute' => 'webmakerr/v1/register-availability',
+                'plans'     => webmakerr_register_get_plan_data(),
+                'strings'   => [
+                    'planUnavailable' => __('Plans are unavailable right now. Please try again later.', 'webmakerr'),
+                    'labels'          => [
+                        'popular'  => __('Popular', 'webmakerr'),
+                        'checking' => __('Checking availability…', 'webmakerr'),
+                    ],
+                    'validation'      => [
+                        'required' => __('This field is required.', 'webmakerr'),
+                        'email'    => [
+                            'invalid'   => __('Enter a valid email address.', 'webmakerr'),
+                            'taken'     => __('That email is already registered.', 'webmakerr'),
+                            'available' => __('This email is available.', 'webmakerr'),
+                        ],
+                        'site'     => [
+                            'invalid'   => __('Use lowercase letters, numbers, or dashes only (minimum 4 characters).', 'webmakerr'),
+                            'taken'     => __('That site address is already taken.', 'webmakerr'),
+                            'available' => __('This site address is available.', 'webmakerr'),
+                        ],
+                        'password' => __('Password must be at least 8 characters.', 'webmakerr'),
+                    ],
+                ],
+            ]
+        );
+    }
 );
 
 add_action(
@@ -314,6 +528,102 @@ add_action(
                         },
                     ],
                 ],
+            ]
+        );
+    }
+);
+
+add_action(
+    'rest_api_init',
+    static function (): void {
+        register_rest_route(
+            'webmakerr/v1',
+            '/register-availability',
+            [
+                'methods'             => 'GET',
+                'permission_callback' => '__return_true',
+                'args'                => [
+                    'email' => [
+                        'sanitize_callback' => static function ($value) {
+                            return is_string($value) ? sanitize_email($value) : '';
+                        },
+                    ],
+                    'site'  => [
+                        'sanitize_callback' => static function ($value) {
+                            return is_string($value) ? sanitize_text_field($value) : '';
+                        },
+                    ],
+                ],
+                'callback'            => static function (WP_REST_Request $request) {
+                    $email_param = $request->get_param('email');
+                    $site_param  = $request->get_param('site');
+
+                    $email      = is_string($email_param) ? sanitize_email($email_param) : '';
+                    $email_data = [
+                        'value'  => $email,
+                        'status' => $email === '' ? 'empty' : 'available',
+                    ];
+
+                    if ($email !== '') {
+                        if (! is_email($email)) {
+                            $email_data['status'] = 'invalid';
+                        } elseif (email_exists($email)) {
+                            $email_data['status'] = 'taken';
+                        } else {
+                            $email_data['status'] = 'available';
+                        }
+                    }
+
+                    $site_raw  = is_string($site_param) ? $site_param : '';
+                    $site_slug = $site_raw !== '' ? sanitize_title($site_raw) : '';
+
+                    $site_data = [
+                        'value'      => $site_slug,
+                        'status'     => $site_raw === '' ? 'empty' : 'available',
+                        'normalized' => $site_slug,
+                    ];
+
+                    if ($site_raw !== '') {
+                        if ($site_slug === '' || strlen($site_slug) < 4) {
+                            $site_data['status'] = 'invalid';
+                        } else {
+                            $exists = false;
+
+                            if (is_multisite()) {
+                                if (function_exists('domain_exists')) {
+                                    $network = get_network();
+
+                                    if ($network instanceof WP_Network) {
+                                        $domain    = $network->domain;
+                                        $base_path = rtrim($network->path ?? '/', '/');
+                                        $path      = trailingslashit($base_path.'/'.trim($site_slug, '/'));
+                                        $exists    = (bool) domain_exists($domain, $path, $network->id);
+                                    }
+                                }
+
+                                if (! $exists) {
+                                    $sites = get_sites([
+                                        'fields' => 'ids',
+                                        'number' => 1,
+                                        'path'   => '/'.trim($site_slug, '/').'/',
+                                    ]);
+
+                                    $exists = ! empty($sites);
+                                }
+                            } else {
+                                $page = get_page_by_path($site_slug);
+                                $exists = $page instanceof WP_Post;
+                            }
+
+                            $site_data['status'] = $exists ? 'taken' : 'available';
+                        }
+                    }
+
+                    return rest_ensure_response([
+                        'email' => $email_data,
+                        'site'  => $site_data,
+                    ]);
+                },
             ]
         );
     }
