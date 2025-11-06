@@ -209,6 +209,147 @@ class Plan_Service {
         }
 
         /**
+         * Attempt to resolve a plan instance from signup context payloads.
+         *
+         * @since 2.8.0
+         *
+         * @param array<string,mixed> $result  Result payload returned by the signup service.
+         * @param array<string,mixed> $payload Original signup payload submitted.
+         * @return Product|null
+         */
+        public function resolve_plan_from_signup_context(array $result, array $payload): ?Product {
+
+                $plan_identifier = null;
+
+                if (isset($result['membership']) && is_array($result['membership']) && isset($result['membership']['plan_id'])) {
+                        $plan_identifier = $result['membership']['plan_id'];
+                } elseif (isset($payload['membership']) && is_array($payload['membership']) && isset($payload['membership']['plan_id'])) {
+                        $plan_identifier = $payload['membership']['plan_id'];
+                }
+
+                if ($plan_identifier !== null) {
+                        $plan = $this->resolve_plan($plan_identifier);
+
+                        if ($plan) {
+                                return $plan;
+                        }
+                }
+
+                $products = [];
+
+                if (isset($payload['products']) && is_array($payload['products'])) {
+                        $products = $payload['products'];
+                } elseif (isset($result['membership']) && is_array($result['membership']) && isset($result['membership']['plan_id'])) {
+                        $products = [$result['membership']['plan_id']];
+                }
+
+                if ($products) {
+                        $plan = $this->resolve_plan_from_list($products);
+
+                        if ($plan) {
+                                return $plan;
+                        }
+                }
+
+                return null;
+        }
+
+        /**
+         * Determine the onboarding destination URL for a signup flow.
+         *
+         * @since 2.8.0
+         *
+         * @param Product|null              $plan    Resolved plan instance, when available.
+         * @param array<string,mixed> $context Additional context information.
+         * @return string
+         */
+        public function resolve_onboarding_destination(?Product $plan, array $context = []): string {
+
+                $candidates = [];
+
+                if ($plan instanceof Product) {
+                        $candidates[] = (string) $plan->get_onboarding_url();
+                }
+
+                if (isset($context['settings_onboarding_url'])) {
+                        $candidates[] = (string) $context['settings_onboarding_url'];
+                } else {
+                        $candidates[] = (string) \wu_get_setting('registration_onboarding_url', '');
+                }
+
+                if (isset($context['request']) && is_array($context['request']) && isset($context['request']['redirect_to'])) {
+                        $candidates[] = (string) $context['request']['redirect_to'];
+                }
+
+                if (isset($context['default_redirect'])) {
+                        $candidates[] = (string) $context['default_redirect'];
+                }
+
+                if (isset($context['result']) && is_array($context['result'])) {
+                        $result = $context['result'];
+
+                        if (isset($result['site']) && is_array($result['site'])) {
+                                $site = $result['site'];
+
+                                if (isset($site['admin_url'])) {
+                                        $candidates[] = (string) $site['admin_url'];
+                                }
+
+                                if (isset($site['url'])) {
+                                        $candidates[] = (string) $site['url'];
+                                }
+                        }
+
+                        if (isset($result['customer']) && is_array($result['customer']) && isset($result['customer']['user_id'])) {
+                                $user_id = absint($result['customer']['user_id']);
+
+                                if ($user_id > 0) {
+                                        $candidates[] = (string) \get_dashboard_url($user_id);
+                                }
+                        }
+                }
+
+                $candidates[] = (string) \home_url('/');
+
+                $destination = '';
+
+                foreach ($candidates as $candidate) {
+                        $candidate = trim((string) $candidate);
+
+                        if ($candidate === '') {
+                                continue;
+                        }
+
+                        $sanitized = \esc_url_raw($candidate);
+
+                        if ($sanitized === '' && strpos($candidate, '/') === 0) {
+                                $sanitized = \esc_url_raw(\home_url($candidate));
+                        }
+
+                        if ($sanitized !== '') {
+                                $destination = $sanitized;
+                                break;
+                        }
+                }
+
+                if ($destination === '') {
+                        $destination = \esc_url_raw(\home_url('/'));
+                }
+
+                /**
+                 * Filter the onboarding destination resolved for a signup flow.
+                 *
+                 * @since 2.8.0
+                 *
+                 * @param string      $destination Resolved onboarding destination URL.
+                 * @param Product|null $plan        Plan associated with the signup.
+                 * @param array       $context     Context array used to resolve the destination.
+                 * @param Plan_Service $service    Plan service instance.
+                 */
+                return (string) apply_filters('wu_plan_service_onboarding_destination', $destination, $plan, $context, $this);
+        }
+
+        /**
          * Convert a list of raw feature strings into sanitized output.
          *
          * @since 2.5.0

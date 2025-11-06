@@ -200,12 +200,43 @@ class Registration_Controller {
                  */
                 do_action('wu_registration_controller_success', $result, $payload, $this);
 
+                if ( ! $plan) {
+                        $plan = $this->plan_service->resolve_plan_from_signup_context($result, $payload);
+                }
+
+                $destination = $this->plan_service->resolve_onboarding_destination($plan, [
+                        'request'          => $request,
+                        'payload'          => $payload,
+                        'result'           => $result,
+                        'default_redirect' => $redirect_url,
+                ]);
+
+                $redirect_extras = [];
+
+                if ($destination !== '') {
+                        $redirect_extras['registration_destination'] = $destination;
+                }
+
+                $redirect_base = $this->with_query_flag($redirect_url, 'registration', 'success', $redirect_extras);
+
+                /**
+                 * Filter the redirect location after the registration flow completes successfully.
+                 *
+                 * @since 2.5.0
+                 *
+                 * @param string                   $redirect_base Redirect URL with success flags appended.
+                 * @param array<string,mixed>      $result        Signup result payload.
+                 * @param array<string,mixed>      $payload       Original signup payload.
+                 * @param Registration_Controller  $controller    Controller instance handling the submission.
+                 * @param string                   $destination   Onboarding destination resolved for the signup.
+                 */
                 $redirect = apply_filters(
                         'wu_registration_controller_success_redirect',
-                        $this->with_query_flag($redirect_url, 'registration', 'success'),
+                        $redirect_base,
                         $result,
                         $payload,
-                        $this
+                        $this,
+                        $destination
                 );
 
                 wp_safe_redirect($redirect);
@@ -270,33 +301,7 @@ class Registration_Controller {
          */
         protected function resolve_plan_from_context(array $result, array $payload) {
 
-                $plan_identifier = null;
-
-                if (isset($result['membership']) && is_array($result['membership']) && isset($result['membership']['plan_id'])) {
-                        $plan_identifier = $result['membership']['plan_id'];
-                } elseif (isset($payload['membership']) && is_array($payload['membership']) && isset($payload['membership']['plan_id'])) {
-                        $plan_identifier = $payload['membership']['plan_id'];
-                }
-
-                if ($plan_identifier !== null) {
-                        $plan = $this->plan_service->resolve_plan($plan_identifier);
-
-                        if ($plan) {
-                                return $plan;
-                        }
-                }
-
-                if (isset($payload['products']) && is_array($payload['products'])) {
-                        foreach ($payload['products'] as $product_identifier) {
-                                $plan = $this->plan_service->resolve_plan($product_identifier);
-
-                                if ($plan) {
-                                        return $plan;
-                                }
-                        }
-                }
-
-                return null;
+                return $this->plan_service->resolve_plan_from_signup_context($result, $payload);
         }
 
         /**
