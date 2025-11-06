@@ -590,22 +590,54 @@ add_action(
                             $exists = false;
 
                             if (is_multisite()) {
-                                if (function_exists('domain_exists')) {
-                                    $network = get_network();
+                                $network      = get_network();
+                                $network_path = '/';
+                                $network_domain = '';
 
-                                    if ($network instanceof WP_Network) {
-                                        $domain    = $network->domain;
-                                        $base_path = rtrim($network->path ?? '/', '/');
-                                        $path      = trailingslashit($base_path.'/'.trim($site_slug, '/'));
-                                        $exists    = (bool) domain_exists($domain, $path, $network->id);
+                                if ($network instanceof WP_Network) {
+                                    $network_domain = $network->domain;
+                                    $network_path   = $network->path ?? '/';
+                                }
+
+                                $slug_fragment = trim($site_slug, '/');
+
+                                if (! is_string($network_path) || $network_path === '') {
+                                    $network_path = '/';
+                                }
+
+                                $site_domain = $network_domain;
+                                $site_path   = '/';
+
+                                if (is_subdomain_install()) {
+                                    $base_domain = ltrim((string) $network_domain, '.');
+
+                                    if ($base_domain === '') {
+                                        $base_domain = $network_domain;
                                     }
+
+                                    if ($slug_fragment === '') {
+                                        $site_domain = $base_domain;
+                                    } elseif ($base_domain !== '') {
+                                        $site_domain = sprintf('%s.%s', $slug_fragment, $base_domain);
+                                    } else {
+                                        $site_domain = $slug_fragment;
+                                    }
+
+                                    $site_path = $network_path !== '' ? $network_path : '/';
+                                } else {
+                                    $site_path = trailingslashit(path_join($network_path, $slug_fragment));
+                                }
+
+                                if ($network instanceof WP_Network && function_exists('domain_exists')) {
+                                    $exists = (bool) domain_exists($site_domain, $site_path, $network->id);
                                 }
 
                                 if (! $exists) {
                                     $sites = get_sites([
                                         'fields' => 'ids',
                                         'number' => 1,
-                                        'path'   => '/'.trim($site_slug, '/').'/',
+                                        'domain' => $site_domain,
+                                        'path'   => $site_path,
                                     ]);
 
                                     $exists = ! empty($sites);
