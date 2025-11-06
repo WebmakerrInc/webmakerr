@@ -137,6 +137,8 @@ class Plan_Service {
                         'shareable_url'            => $product->get_shareable_link(),
                         'contact_us_label'         => $product->get_contact_us_label(),
                         'contact_us_link'          => $product->get_contact_us_link(),
+                        'onboarding_url'           => $product->get_onboarding_url(),
+                        'onboarding_site_template' => $product->get_onboarding_site_template(),
                         'active'                   => $product->is_active(),
                 ];
 

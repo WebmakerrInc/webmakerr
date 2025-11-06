@@ -156,11 +156,21 @@ return [
 		'type'        => 'string',
 		'required'    => false,
 	],
-	'feature_list'        => [
-		'description' => __('A list (array) of features of the product.', 'ultimate-multisite'),
-		'type'        => 'array',
-		'required'    => false,
-	],
+        'feature_list'        => [
+                'description' => __('A list (array) of features of the product.', 'ultimate-multisite'),
+                'type'        => 'array',
+                'required'    => false,
+        ],
+        'onboarding_url'      => [
+                'description' => __('Custom onboarding URL triggered after signup completes for this plan.', 'ultimate-multisite'),
+                'type'        => 'string',
+                'required'    => false,
+        ],
+        'onboarding_site_template' => [
+                'description' => __('Site template ID automatically assigned when customers register for this plan.', 'ultimate-multisite'),
+                'type'        => 'integer',
+                'required'    => false,
+        ],
 	'customer_role'       => [
 		'description' => __('The customer role of this product.', 'ultimate-multisite'),
 		'type'        => 'string',

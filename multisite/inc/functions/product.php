@@ -199,3 +199,44 @@ function wu_segregate_products($products) {
 
 	return $results;
 }
+
+/**
+ * Ensure newly introduced plan registration metadata exists for legacy products.
+ *
+ * @since 2.6.0
+ * @return void
+ */
+function wu_maybe_migrate_plan_registration_meta(): void {
+
+        if (get_network_option(null, 'wu_plan_registration_meta_migrated', false)) {
+                return;
+        }
+
+        $plans = wu_get_plans([
+                'number' => -1,
+        ]);
+
+        foreach ($plans as $plan) {
+                if ( ! $plan instanceof Product) {
+                        continue;
+                }
+
+                $meta_updates = [];
+
+                if ( ! metadata_exists('wu_product', $plan->get_id(), 'onboarding_url')) {
+                        $meta_updates['onboarding_url'] = '';
+                }
+
+                if ( ! metadata_exists('wu_product', $plan->get_id(), 'onboarding_site_template')) {
+                        $meta_updates['onboarding_site_template'] = 0;
+                }
+
+                if ($meta_updates) {
+                        $plan->update_meta_batch($meta_updates);
+                }
+        }
+
+        update_network_option(null, 'wu_plan_registration_meta_migrated', true);
+}
+
+add_action('init', 'wu_maybe_migrate_plan_registration_meta', 20);
