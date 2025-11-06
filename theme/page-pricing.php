@@ -10,6 +10,161 @@ if (! defined('ABSPATH')) {
     exit; // Exit if accessed directly.
 }
 
+if (! function_exists('webmakerr_pricing_template_is_target_page')) {
+    function webmakerr_pricing_template_is_target_page(bool $restrict_to_main_site = false): bool
+    {
+        if (! function_exists('is_page') || ! is_page()) {
+            return false;
+        }
+
+        $queried_object = get_queried_object();
+
+        if (! ($queried_object instanceof \WP_Post)) {
+            return false;
+        }
+
+        if ($restrict_to_main_site && ! is_main_site()) {
+            return false;
+        }
+
+        $slug = sanitize_title($queried_object->post_name ?: '');
+
+        if ($slug === 'pricing') {
+            return true;
+        }
+
+        $title = sanitize_title($queried_object->post_title ?? '');
+
+        if ($title === 'pricing') {
+            return true;
+        }
+
+        if (is_main_site()) {
+            $pricing_page = get_page_by_path('pricing');
+
+            if ($pricing_page instanceof \WP_Post && (int) $pricing_page->ID === (int) $queried_object->ID) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
+if (! function_exists('webmakerr_pricing_template_fallback_template')) {
+    function webmakerr_pricing_template_fallback_template(): string
+    {
+        $fallback = locate_template(['page.php', 'index.php'], false, false);
+
+        if (is_string($fallback) && $fallback !== '' && realpath($fallback) !== realpath(__FILE__)) {
+            return $fallback;
+        }
+
+        return '';
+    }
+}
+
+if (! function_exists('webmakerr_pricing_template_register_controls')) {
+    function webmakerr_pricing_template_register_controls(): void
+    {
+        static $registered = false;
+
+        if ($registered) {
+            return;
+        }
+
+        $registered = true;
+
+        add_filter(
+            'theme_page_templates',
+            static function (array $page_templates, $theme, $post, $post_type): array {
+                if (! is_main_site()) {
+                    unset($page_templates['page-pricing.php']);
+                }
+
+                return $page_templates;
+            },
+            20,
+            4
+        );
+
+        add_filter(
+            'page_template',
+            static function ($template, $type, $templates) {
+                if (! is_main_site()) {
+                    $current_template = is_string($template) ? $template : '';
+
+                    if ($current_template !== '' && basename($current_template) === 'page-pricing.php') {
+                        $fallback = webmakerr_pricing_template_fallback_template();
+
+                        if ($fallback) {
+                            return $fallback;
+                        }
+                    }
+
+                    return $template;
+                }
+
+                if (webmakerr_pricing_template_is_target_page(true)) {
+                    return __FILE__;
+                }
+
+                return $template;
+            },
+            20,
+            3
+        );
+
+        add_filter(
+            'template_include',
+            static function (string $template): string {
+                if (! is_page()) {
+                    return $template;
+                }
+
+                $is_target_page = webmakerr_pricing_template_is_target_page();
+
+                if (is_main_site()) {
+                    if ($is_target_page) {
+                        return __FILE__;
+                    }
+
+                    return $template;
+                }
+
+                if ($template === __FILE__ || $is_target_page) {
+                    $fallback = webmakerr_pricing_template_fallback_template();
+
+                    if ($fallback) {
+                        return $fallback;
+                    }
+                }
+
+                return $template;
+            },
+            20
+        );
+    }
+}
+
+webmakerr_pricing_template_register_controls();
+
+$bootstrap_only = ! empty($GLOBALS['webmakerr_pricing_template_bootstrap_only'] ?? false);
+
+if ($bootstrap_only) {
+    return;
+}
+
+if (! is_main_site() || ! webmakerr_pricing_template_is_target_page(true)) {
+    $fallback_template = webmakerr_pricing_template_fallback_template();
+
+    if ($fallback_template) {
+        load_template($fallback_template, false);
+    }
+
+    return;
+}
+
 get_header();
 
 $plans          = [];
