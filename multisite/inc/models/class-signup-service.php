@@ -806,6 +806,18 @@ class Signup_Service {
                  */
                 $payload = apply_filters('wu_signup_service_site_data', $payload, $site_data, $membership, $this);
 
+                /**
+                 * Fires right before the registration flow provisions the pending site record.
+                 *
+                 * @since 2.6.0
+                 *
+                 * @param array          $payload    Final site payload prepared for creation.
+                 * @param array          $site_data  Original site data passed in the payload.
+                 * @param Membership     $membership Membership instance.
+                 * @param Signup_Service $service    Signup service instance.
+                 */
+                do_action('multisite_registration_before_site_create', $payload, $site_data, $membership, $this);
+
                 $membership->create_pending_site($payload);
 
                 $payload['id'] = 0;

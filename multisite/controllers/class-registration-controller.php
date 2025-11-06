@@ -57,6 +57,7 @@ class Registration_Controller {
                 add_action('admin_post_nopriv_wu_registration_submit', [$this, 'handle_submission']);
 
                 add_filter('wu_registration_available_plans', [$this, 'provide_plan_catalog'], 10, 2);
+                add_action('wu_registration_controller_success', [$this, 'dispatch_registration_success_event'], 15, 3);
         }
 
         /**
@@ -209,6 +210,93 @@ class Registration_Controller {
 
                 wp_safe_redirect($redirect);
                 exit;
+        }
+
+        /**
+         * Dispatch the public registration success hook with normalized data.
+         *
+         * @since 2.6.0
+         *
+         * @param array<string,mixed> $result    Signup service result payload.
+         * @param array<string,mixed> $payload   Original signup payload submitted.
+         * @param mixed               $controller Controller instance triggering the event.
+         * @return void
+         */
+        public function dispatch_registration_success_event(array $result, array $payload, $controller): void {
+
+                $user = null;
+
+                if (isset($result['customer']['user_id'])) {
+                        $user_id = absint($result['customer']['user_id']);
+
+                        if ($user_id > 0) {
+                                $user = get_user_by('id', $user_id);
+                        }
+                }
+
+                $site = isset($result['site']) && is_array($result['site']) ? $result['site'] : null;
+
+                $plan = $this->resolve_plan_from_context($result, $payload);
+
+                $payment_status = '';
+
+                if (isset($result['status']['payment'])) {
+                        $payment_status = (string) $result['status']['payment'];
+                }
+
+                /**
+                 * Fires after the multisite registration flow completes successfully.
+                 *
+                 * @since 2.6.0
+                 *
+                 * @param \WP_User|null                     $user           WordPress user associated with the signup.
+                 * @param array<string,mixed>|null           $site           Site payload returned by the signup service.
+                 * @param \WP_Ultimo\Models\Product|null   $plan           Plan associated with the signup.
+                 * @param string                             $payment_status Payment status resolved from the signup.
+                 * @param array<string,mixed>                $result         Raw result payload returned by the signup service.
+                 * @param array<string,mixed>                $payload        Payload originally submitted for signup.
+                 */
+                do_action('multisite_registration_after_success', $user, $site, $plan, $payment_status, $result, $payload);
+        }
+
+        /**
+         * Attempt to resolve the plan associated with a signup result.
+         *
+         * @since 2.6.0
+         *
+         * @param array<string,mixed> $result  Result payload returned by the signup service.
+         * @param array<string,mixed> $payload Original signup payload submitted.
+         * @return \WP_Ultimo\Models\Product|null
+         */
+        protected function resolve_plan_from_context(array $result, array $payload) {
+
+                $plan_identifier = null;
+
+                if (isset($result['membership']) && is_array($result['membership']) && isset($result['membership']['plan_id'])) {
+                        $plan_identifier = $result['membership']['plan_id'];
+                } elseif (isset($payload['membership']) && is_array($payload['membership']) && isset($payload['membership']['plan_id'])) {
+                        $plan_identifier = $payload['membership']['plan_id'];
+                }
+
+                if ($plan_identifier !== null) {
+                        $plan = $this->plan_service->resolve_plan($plan_identifier);
+
+                        if ($plan) {
+                                return $plan;
+                        }
+                }
+
+                if (isset($payload['products']) && is_array($payload['products'])) {
+                        foreach ($payload['products'] as $product_identifier) {
+                                $plan = $this->plan_service->resolve_plan($product_identifier);
+
+                                if ($plan) {
+                                        return $plan;
+                                }
+                        }
+                }
+
+                return null;
         }
 
         /**

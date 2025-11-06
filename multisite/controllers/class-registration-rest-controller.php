@@ -158,9 +158,11 @@ class Registration_Rest_Controller {
                         $plans = $this->plan_service->get_normalized_plans($query);
                 }
 
+                $plans = apply_filters('multisite_registration_plan_list', (array) $plans, $query, $request);
+
                 return $this->prepare_success_response(
                         [
-                                'plans' => array_values((array) $plans),
+                                'plans' => array_values($plans),
                         ]
                 );
         }
