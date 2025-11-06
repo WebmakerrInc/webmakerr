@@ -122,7 +122,8 @@ if (! function_exists('webmakerr_pricing_template_register_controls')) {
                     return $template;
                 }
 
-                $is_target_page = webmakerr_pricing_template_is_target_page();
+                $is_target_page        = webmakerr_pricing_template_is_target_page();
+                $main_site_target_page = webmakerr_pricing_template_is_target_page(true);
 
                 if (is_main_site()) {
                     if ($is_target_page) {
@@ -132,7 +133,9 @@ if (! function_exists('webmakerr_pricing_template_register_controls')) {
                     return $template;
                 }
 
-                if ($template === __FILE__ || $is_target_page) {
+                $uses_pricing_template = basename($template) === 'page-pricing.php';
+
+                if ($uses_pricing_template || $main_site_target_page) {
                     $fallback = webmakerr_pricing_template_fallback_template();
 
                     if ($fallback) {
