@@ -10,6 +10,7 @@
 use WP_Ultimo\Addon_Repository;
 use WP_Ultimo\Controllers\Registration_Controller;
 use WP_Ultimo\Controllers\Registration_Rest_Controller;
+use WP_Ultimo\Monitoring\Registration_Monitor;
 use WP_Ultimo\Services\Plan_Service;
 
 defined('ABSPATH') || exit;
@@ -469,10 +470,15 @@ final class WP_Ultimo {
 		/*
 		 * Loads the Maintenance Mode
 		 */
-		WP_Ultimo\Maintenance_Mode::get_instance();
+                WP_Ultimo\Maintenance_Mode::get_instance();
 
-		/*
-		 * Support for Page Builder
+                /*
+                 * Registration and payment monitoring
+                 */
+                Registration_Monitor::get_instance();
+
+                /*
+                 * Support for Page Builder
 		 * @todo: move to add-on
 		 */
 		\WP_Ultimo\Builders\Block_Editor\Block_Editor_Widget_Manager::get_instance();
