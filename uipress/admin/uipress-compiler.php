@@ -14,6 +14,7 @@ class uipress_compiler
     require_once uip_plugin_path . "admin/core/ajax-functions.php";
     require_once uip_plugin_path . "admin/core/uiBuilder.php";
     require_once uip_plugin_path . "admin/core/site-settings.php";
+    require_once uip_plugin_path . "admin/core/dashboard-override.php";
 
     $this->check_for_uipress_pro_version();
 
@@ -32,6 +33,9 @@ class uipress_compiler
     // Load global settings
     $uip_global_site = new uip_site_settings();
     $uip_global_site->run();
+
+    $uip_dashboard_override = new uip_dashboard_override();
+    $uip_dashboard_override->run();
 
     $this->load_plugin_textdomain();
     $this->activations_hooks();
