@@ -39,7 +39,13 @@
         }
 
         try {
-            return new URL(destination, window.location.origin).href;
+            const targetUrl = new URL(destination, window.location.origin);
+
+            if (targetUrl.origin !== window.location.origin) {
+                return '';
+            }
+
+            return targetUrl.href;
         } catch (error) {
             return '';
         }
