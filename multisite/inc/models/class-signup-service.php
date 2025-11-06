@@ -710,11 +710,7 @@ class Signup_Service {
 
                 $gateway->set_order($cart);
 
-                $type = isset($params['type']) ? sanitize_key($params['type']) : '';
-
-                if ($type === '' && isset($params['cart_type'])) {
-                        $type = sanitize_key($params['cart_type']);
-                }
+                $type = sanitize_key((string) $cart->get_cart_type());
 
                 if ($type === '') {
                         $type = 'new';
