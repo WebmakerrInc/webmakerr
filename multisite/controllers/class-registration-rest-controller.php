@@ -9,6 +9,7 @@
 
 namespace WP_Ultimo\Controllers;
 
+use stdClass;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
@@ -142,6 +143,13 @@ class Registration_Rest_Controller {
          */
         public function get_plans(WP_REST_Request $request): WP_REST_Response {
 
+                $nonce_check = $this->validate_nonce_or_error($request, 'wu_registration_request');
+
+                if (is_wp_error($nonce_check)) {
+
+                        return $this->prepare_error_response($nonce_check);
+                }
+
                 $query = $request->get_params();
 
                 $plans = apply_filters('wu_registration_available_plans', null, $query);
@@ -150,11 +158,11 @@ class Registration_Rest_Controller {
                         $plans = $this->plan_service->get_normalized_plans($query);
                 }
 
-                $response = [
-                        'plans' => array_values((array) $plans),
-                ];
-
-                return rest_ensure_response($response);
+                return $this->prepare_success_response(
+                        [
+                                'plans' => array_values((array) $plans),
+                        ]
+                );
         }
 
         /**
@@ -167,15 +175,22 @@ class Registration_Rest_Controller {
          */
         public function validate_availability(WP_REST_Request $request): WP_REST_Response {
 
+                $nonce_check = $this->validate_nonce_or_error($request, 'wu_registration_request');
+
+                if (is_wp_error($nonce_check)) {
+
+                        return $this->prepare_error_response($nonce_check);
+                }
+
                 $email = (string) $request->get_param('email');
                 $site  = (string) $request->get_param('site');
 
-                $response = [
-                        'email' => $this->evaluate_email_availability($email),
-                        'site'  => $this->evaluate_site_availability($site),
-                ];
-
-                return rest_ensure_response($response);
+                return $this->prepare_success_response(
+                        [
+                                'email' => $this->evaluate_email_availability($email),
+                                'site'  => $this->evaluate_site_availability($site),
+                        ]
+                );
         }
 
         /**
@@ -188,19 +203,14 @@ class Registration_Rest_Controller {
          */
         public function validate_submission_permission(WP_REST_Request $request) {
 
-                $nonce = $this->extract_nonce($request);
+                $nonce_check = $this->validate_nonce_or_error($request, 'wu_registration_submit');
 
-                if ($nonce !== '' && wp_verify_nonce($nonce, 'wu_registration_submit')) {
-                        return true;
+                if (is_wp_error($nonce_check)) {
+
+                        return $nonce_check;
                 }
 
-                return new WP_Error(
-                        'invalid_nonce',
-                        __('Unable to verify the registration request. Please refresh the page and try again.', 'ultimate-multisite'),
-                        [
-                                'status' => 403,
-                        ]
-                );
+                return true;
         }
 
         /**
@@ -427,6 +437,142 @@ class Registration_Rest_Controller {
                 }
 
                 return '';
+        }
+
+        /**
+         * Validate the nonce present on the request or return an error.
+         *
+         * @since 2.7.0
+         *
+         * @param WP_REST_Request $request REST request instance.
+         * @param string          $action  Nonce action string to validate against.
+         * @return true|WP_Error
+         */
+        protected function validate_nonce_or_error(WP_REST_Request $request, string $action)
+        {
+
+                $nonce = $this->extract_nonce($request);
+
+                if ($nonce !== '' && wp_verify_nonce($nonce, $action)) {
+
+                        return true;
+                }
+
+                return new WP_Error(
+                        'invalid_nonce',
+                        __('Unable to verify the registration request. Please refresh the page and try again.', 'ultimate-multisite'),
+                        [
+                                'status' => 403,
+                        ]
+                );
+        }
+
+        /**
+         * Normalize a success response to keep a consistent schema.
+         *
+         * @since 2.7.0
+         *
+         * @param array<string,mixed> $data Response payload.
+         * @return WP_REST_Response
+         */
+        protected function prepare_success_response(array $data): WP_REST_Response {
+
+                $response = rest_ensure_response(
+                        [
+                                'success' => true,
+                                'data'    => $data,
+                                'errors'  => [],
+                        ]
+                );
+
+                return $response;
+        }
+
+        /**
+         * Normalize error responses returned by the controller.
+         *
+         * @since 2.7.0
+         *
+         * @param WP_Error $error Error instance to convert into a REST response.
+         * @return WP_REST_Response
+         */
+        protected function prepare_error_response(WP_Error $error): WP_REST_Response {
+
+                $status = $this->resolve_error_status($error, 400);
+
+                $normalized_errors = [];
+
+                foreach ($error->get_error_codes() as $code) {
+
+                        $messages = $error->get_error_messages($code);
+                        $data     = $error->get_error_data($code);
+
+                        if ($messages === []) {
+                                continue;
+                        }
+
+                        foreach ($messages as $message) {
+
+                                $entry = [
+                                        'code'    => $code,
+                                        'message' => $message,
+                                ];
+
+                                if (is_array($data) && $data !== []) {
+                                        $entry['data'] = $data;
+                                }
+
+                                $normalized_errors[] = $entry;
+                        }
+                }
+
+                if ($normalized_errors === []) {
+                        $normalized_errors[] = [
+                                'code'    => 'unknown_error',
+                                'message' => __('An unknown error occurred.', 'ultimate-multisite'),
+                        ];
+                }
+
+                $response = rest_ensure_response(
+                        [
+                                'success' => false,
+                                'data'    => new stdClass(),
+                                'errors'  => $normalized_errors,
+                        ]
+                );
+
+                $response->set_status($status);
+
+                return $response;
+        }
+
+        /**
+         * Derive the appropriate HTTP status code for a WP_Error instance.
+         *
+         * @since 2.7.0
+         *
+         * @param WP_Error $error   Error instance.
+         * @param int      $default Default HTTP status code.
+         * @return int
+         */
+        protected function resolve_error_status(WP_Error $error, int $default = 400): int {
+
+                foreach ($error->get_error_codes() as $code) {
+
+                        $data = $error->get_error_data($code);
+
+                        if (is_array($data) && isset($data['status']) && is_numeric($data['status'])) {
+
+                                return (int) $data['status'];
+                        }
+
+                        if (is_numeric($data)) {
+
+                                return (int) $data;
+                        }
+                }
+
+                return $default;
         }
 
         /**

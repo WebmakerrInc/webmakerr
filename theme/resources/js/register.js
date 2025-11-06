@@ -1,10 +1,11 @@
 (function () {
     const settings = window.webmakerrRegisterData || {};
-    const plans = Array.isArray(settings.plans) ? settings.plans : [];
+    const fallbackPlans = Array.isArray(settings.plans) ? settings.plans : [];
     const strings = settings.strings || {};
+    const endpoints = settings.endpoints || {};
+    const requestNonce = typeof settings.nonce === 'string' ? settings.nonce : '';
     const planWrapper = document.querySelector('[data-register-plan-wrapper]');
     const planContainer = document.querySelector('[data-register-plans]');
-    const planEmpty = document.querySelector('[data-register-plan-empty]');
     const planField = document.querySelector('[data-register-selected-plan]');
     const planNameOutput = document.querySelector('[data-register-plan-name]');
     const form = document.querySelector('[data-register-form]');
@@ -13,7 +14,6 @@
     const siteInput = document.querySelector('[data-register-site]');
     const nameInput = form ? form.querySelector('[data-register-field="name"]') : null;
     const passwordInput = form ? form.querySelector('[data-register-field="password"]') : null;
-    const apiFetch = window.wp && window.wp.apiFetch ? window.wp.apiFetch : null;
     const cssEscape = window.CSS && typeof window.CSS.escape === 'function'
         ? window.CSS.escape.bind(window.CSS)
         : (value) => String(value).replace(/[^a-zA-Z0-9_-]/g, '_');
@@ -81,6 +81,124 @@
         }
 
         return fallback;
+    }
+
+    function requestJSON(url, options = {}) {
+        if (!url) {
+            return Promise.resolve(null);
+        }
+
+        const config = typeof options === 'object' && options !== null ? options : {};
+        const method = typeof config.method === 'string' ? config.method.toUpperCase() : 'GET';
+        const headers = {};
+
+        if (config.headers && typeof config.headers === 'object') {
+            Object.keys(config.headers).forEach((key) => {
+                headers[key] = config.headers[key];
+            });
+        }
+
+        if (requestNonce) {
+            headers['X-WP-Nonce'] = requestNonce;
+            headers['X-WU-Registration-Nonce'] = requestNonce;
+        }
+
+        let finalUrl = String(url);
+        const query = config.query || config.params;
+
+        if (query && typeof query === 'object') {
+            const searchParams = new URLSearchParams();
+
+            Object.entries(query).forEach(([key, value]) => {
+                if (value === undefined || value === null) {
+                    return;
+                }
+
+                if (Array.isArray(value)) {
+                    value.forEach((entry) => {
+                        if (entry !== undefined && entry !== null && entry !== '') {
+                            searchParams.append(key, entry);
+                        }
+                    });
+                } else if (value !== '') {
+                    searchParams.append(key, value);
+                }
+            });
+
+            const queryString = searchParams.toString();
+
+            if (queryString) {
+                finalUrl += finalUrl.includes('?') ? `&${queryString}` : `?${queryString}`;
+            }
+        }
+
+        let body;
+
+        if (config.body && method !== 'GET') {
+            if (!Object.prototype.hasOwnProperty.call(headers, 'Content-Type')) {
+                headers['Content-Type'] = 'application/json';
+            }
+
+            body = typeof config.body === 'string' ? config.body : JSON.stringify(config.body);
+        }
+
+        const fetchOptions = {
+            method,
+            headers,
+            credentials: 'same-origin',
+        };
+
+        if (body !== undefined) {
+            fetchOptions.body = body;
+        }
+
+        return fetch(finalUrl, fetchOptions)
+            .then(async (response) => {
+                let payload = null;
+
+                try {
+                    payload = await response.json();
+                } catch (error) {
+                    payload = null;
+                }
+
+                if (!payload) {
+                    if (!response.ok) {
+                        return {
+                            success: false,
+                            data: {},
+                            errors: [
+                                {
+                                    code: 'http_error',
+                                    message: getString('errors.generic', 'Something went wrong. Please try again.'),
+                                },
+                            ],
+                        };
+                    }
+
+                    return null;
+                }
+
+                if (!response.ok) {
+                    if (!Array.isArray(payload.errors) || payload.errors.length === 0) {
+                        return {
+                            success: false,
+                            data: {},
+                            errors: [
+                                {
+                                    code: 'http_error',
+                                    message: getString('errors.generic', 'Something went wrong. Please try again.'),
+                                },
+                            ],
+                        };
+                    }
+
+                    return payload;
+                }
+
+                return payload;
+            })
+            .catch(() => null);
     }
 
     function buildFeatureList(features) {
@@ -157,12 +275,32 @@
         return button;
     }
 
+    function updateEmptyState(message) {
+        if (!planContainer) {
+            return;
+        }
+
+        const fallbackMessage = message || getString('planUnavailable', 'Plans are unavailable right now.');
+        let target = planContainer.querySelector('[data-register-plan-empty]');
+
+        if (!target) {
+            target = document.createElement('p');
+            target.className = 'register-plan-empty';
+            target.setAttribute('data-register-plan-empty', '');
+            planContainer.innerHTML = '';
+            planContainer.appendChild(target);
+        }
+
+        target.textContent = fallbackMessage;
+
+        if (planWrapper) {
+            planWrapper.setAttribute('data-loading', 'false');
+        }
+    }
+
     function renderPlans(data) {
         if (!Array.isArray(data) || data.length === 0) {
-            planWrapper && planWrapper.setAttribute('data-loading', 'false');
-            if (planEmpty) {
-                planEmpty.textContent = getString('planUnavailable', 'Plans are unavailable right now.');
-            }
+            updateEmptyState(getString('planUnavailable', 'Plans are unavailable right now.'));
             return;
         }
 
@@ -214,6 +352,58 @@
         }
     }
 
+    function loadPlansFromEndpoint() {
+        if (!endpoints || !endpoints.plans) {
+            if (!fallbackPlans.length) {
+                updateEmptyState(getString('planUnavailable', 'Plans are unavailable right now.'));
+            }
+
+            return;
+        }
+
+        if (!fallbackPlans.length && planWrapper) {
+            planWrapper.setAttribute('data-loading', 'true');
+        }
+
+        requestJSON(endpoints.plans)
+            .then((payload) => {
+                if (payload && payload.success === true) {
+                    const data = payload.data && typeof payload.data === 'object' ? payload.data : {};
+                    const plans = Array.isArray(data.plans) ? data.plans : [];
+
+                    if (plans.length) {
+                        renderPlans(plans);
+                        return;
+                    }
+                }
+
+                if (fallbackPlans.length) {
+                    renderPlans(fallbackPlans);
+                    return;
+                }
+
+                let message = getString('planUnavailable', 'Plans are unavailable right now.');
+
+                if (payload && Array.isArray(payload.errors) && payload.errors.length) {
+                    const firstError = payload.errors[0];
+
+                    if (firstError && typeof firstError === 'object' && firstError.message) {
+                        message = firstError.message;
+                    }
+                }
+
+                updateEmptyState(message);
+            })
+            .catch(() => {
+                if (fallbackPlans.length) {
+                    renderPlans(fallbackPlans);
+                    return;
+                }
+
+                updateEmptyState(getString('planUnavailable', 'Plans are unavailable right now.'));
+            });
+    }
+
     function debounce(fn, wait) {
         let timeout;
         return function debounced(...args) {
@@ -225,18 +415,14 @@
     }
 
     function availabilityRequest(params) {
-        if (!apiFetch || !settings.restRoute) {
+        if (!endpoints || !endpoints.validate) {
             return Promise.resolve(null);
         }
 
-        const searchParams = new URLSearchParams(params);
-        const path = `${settings.restRoute.startsWith('/') ? '' : '/'}${settings.restRoute}?${searchParams.toString()}`;
-
-        return apiFetch({
-            path,
+        return requestJSON(endpoints.validate, {
             method: 'GET',
-            headers: settings.nonce ? { 'X-WP-Nonce': settings.nonce } : undefined,
-        }).catch(() => null);
+            query: params,
+        });
     }
 
     const debouncedCheck = debounce((field, value) => {
@@ -255,13 +441,34 @@
             params.site = value;
         }
 
-        availabilityRequest(params).then((response) => {
-            if (!response) {
+        availabilityRequest(params).then((payload) => {
+            if (!payload) {
                 setFieldState(field, 'neutral', '');
                 return;
             }
 
-            const fieldResponse = response[field];
+            if (payload.success !== true) {
+                let message = getString('errors.generic', 'Something went wrong. Please try again.');
+
+                if (Array.isArray(payload.errors) && payload.errors.length) {
+                    const firstError = payload.errors[0];
+
+                    if (firstError && typeof firstError === 'object') {
+                        if (firstError.code === 'invalid_nonce') {
+                            message = firstError.message || getString('errors.nonce', 'Your session has expired. Please refresh the page and try again.');
+                        } else if (firstError.message) {
+                            message = firstError.message;
+                        }
+                    }
+                }
+
+                setFieldState(field, 'error', message);
+                return;
+            }
+
+            const data = payload.data && typeof payload.data === 'object' ? payload.data : {};
+            const fieldResponse = data[field];
+
             if (!fieldResponse) {
                 setFieldState(field, 'neutral', '');
                 return;
@@ -402,18 +609,11 @@
         });
     }
 
-    if (planWrapper) {
+    if (fallbackPlans.length) {
+        renderPlans(fallbackPlans);
+    } else if (planWrapper) {
         planWrapper.setAttribute('data-loading', 'true');
     }
 
-    if (plans.length) {
-        renderPlans(plans);
-    } else {
-        if (planWrapper) {
-            planWrapper.setAttribute('data-loading', 'false');
-        }
-        if (planEmpty) {
-            planEmpty.textContent = getString('planUnavailable', 'Plans are unavailable right now.');
-        }
-    }
+    loadPlansFromEndpoint();
 })();
