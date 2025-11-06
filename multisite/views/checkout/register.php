@@ -66,21 +66,21 @@ $render_field = static function ($field_data) {
 
 ?>
 
-<section class="bg-[#fafafa] text-gray-900">
-        <div class="mx-auto max-w-6xl px-4 py-14 sm:py-16">
-                <div class="text-center">
-                        <h1 class="text-3xl font-bold leading-tight sm:text-4xl">
+<section class="wu-bg-[#fafafa] wu-text-gray-900">
+        <div class="wu-mx-auto wu-max-w-6xl wu-px-4 wu-py-14 sm:wu-py-16">
+                <div class="wu-text-center">
+                        <h1 class="wu-text-3xl wu-font-bold wu-leading-tight sm:wu-text-4xl">
                                 <?php esc_html_e('Simple pricing based on your needs', 'ultimate-multisite'); ?>
                         </h1>
-                        <p class="mt-4 text-sm text-gray-500 sm:text-base">
+                        <p class="wu-mt-4 wu-text-sm wu-text-gray-500 sm:wu-text-base">
                                 <?php esc_html_e('Choose a plan to unlock the site creation form. You can upgrade or downgrade whenever your needs change.', 'ultimate-multisite'); ?>
                         </p>
                 </div>
 
-                <form id="wu_form" method="post" class="wu-styling wu-relative mt-12 space-y-12">
+                <form id="wu_form" method="post" class="wu-styling wu-relative wu-mt-12 wu-space-y-12">
                         <?php echo $order_form->before; ?>
                         <?php if ($pricing_field) : ?>
-                                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                                <div class="wu-grid wu-grid-cols-1 wu-gap-6 sm:wu-grid-cols-2 xl:wu-grid-cols-3">
                                         <?php $render_field($pricing_field); ?>
                                 </div>
                         <?php else : ?>
@@ -90,17 +90,17 @@ $render_field = static function ($field_data) {
                         <?php if ($pricing_field && $additional_fields) : ?>
                                 <div
                                         id="wu-signup-card"
-                                        class="rounded-3xl border border-gray-200 bg-white p-6 shadow-xl transition-all duration-500 sm:p-10"
+                                        class="wu-rounded-3xl wu-border wu-border-gray-200 wu-bg-white wu-p-6 wu-shadow-xl wu-transition-all wu-duration-500 sm:wu-p-10"
                                         v-cloak
                                         v-show="products && products.length"
                                 >
-                                        <div class="space-y-6">
+                                        <div class="wu-space-y-6">
                                                 <?php foreach ($additional_fields as $field_data) : ?>
                                                         <?php $render_field($field_data); ?>
                                                 <?php endforeach; ?>
                                         </div>
 
-                                        <div class="mt-8 border-t border-gray-100 pt-6">
+                                        <div class="wu-mt-8 wu-border-t wu-border-gray-100 wu-pt-6">
                                                 <?php
                                                 $submit = new \WP_Ultimo\UI\Form('submit-fields', $submit_fields, ['views' => 'checkout/fields']);
                                                 $submit->render();
