@@ -246,14 +246,22 @@ abstract class Base_Admin_Page {
 	 */
 	public function get_capability() {
 
-		if (is_user_admin()) {
-			return $this->supported_panels['user_admin_menu'];
-		} elseif (is_network_admin()) {
-			return $this->supported_panels['network_admin_menu'];
-		}
+                if (is_user_admin()) {
+                        return $this->supported_panels['user_admin_menu'] ?? 'read';
+                }
 
-		return $this->supported_panels['admin_menu'];
-	}
+                if (is_network_admin()) {
+                        $network_capability = $this->supported_panels['network_admin_menu'] ?? 'manage_network';
+
+                        if ($network_capability && current_user_can($network_capability)) {
+                                return $network_capability;
+                        }
+
+                        return 'manage_network';
+                }
+
+                return $this->supported_panels['admin_menu'] ?? 'manage_options';
+        }
 
 	/**
 	 * Fix the subdomain name if an option (submenu title) is passed.

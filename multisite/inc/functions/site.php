@@ -189,43 +189,76 @@ function wu_create_site($site_data) {
  */
 function wu_get_site_domain_and_path($path_or_subdomain = '/', $base_domain = false) {
 
-	global $current_site;
+        global $current_site;
 
-	$path_or_subdomain = trim($path_or_subdomain, '/');
+        $path_or_subdomain = trim($path_or_subdomain, '/');
 
-	$domain = $base_domain ?: $current_site->domain;
+        $domain = $base_domain;
 
-	$d = new \stdClass();
+        if (false === $base_domain || '' === $base_domain) {
+                $home_host = wp_parse_url(home_url('/'), PHP_URL_HOST);
 
-	if (is_multisite() && is_subdomain_install()) {
-		/*
-		 * Treat for the www. case.
-		 */
-		$domain = str_replace('www.', '', (string) $domain);
+                if (empty($home_host) && isset($_SERVER['HTTP_HOST'])) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+                        $home_host = wp_parse_url('//' . wp_unslash($_SERVER['HTTP_HOST']), PHP_URL_HOST); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+                }
 
-		$d->domain = "{$path_or_subdomain}.{$domain}";
+                if (empty($home_host) && isset($current_site->domain)) {
+                        $home_host = $current_site->domain;
+                }
 
-		$d->path = '/';
+                $domain = (string) $home_host;
+        }
 
-		return $d;
-	}
+        if (empty($domain) && isset($current_site->domain)) {
+                $domain = $current_site->domain;
+        }
 
-	$d->domain = $domain;
+        $domain = trim((string) $domain);
 
-	$d->path = "/{$path_or_subdomain}";
+        if ($domain !== '') {
+                $domain_for_parsing = str_contains($domain, '://') ? $domain : "https://{$domain}";
 
-	/**
-	 * Allow developers to manipulate the domain/path pairs.
-	 *
-	 * This can be useful for a number of things, such as implementing some
-	 * sort of staging solution, different servers, etc.
-	 *
-	 * @since 2.0.0
-	 * @param object $d The current object containing a domain and path keys.
-	 * @param string $path_or_subdomain The original path/subdomain passed to the function.
-	 * @return object An object containing a domain and path keys.
-	 */
-	return apply_filters('wu_get_site_domain_and_path', $d, $path_or_subdomain);
+                $parsed_host = wp_parse_url($domain_for_parsing, PHP_URL_HOST);
+
+                if ($parsed_host) {
+                        $domain = $parsed_host;
+                }
+        }
+
+        $d = new \stdClass();
+
+        if (is_multisite() && is_subdomain_install()) {
+                /*
+                 * Treat for the www. case.
+                 */
+                $domain = str_replace('www.', '', $domain);
+
+                $subdomain = $path_or_subdomain === '' ? '' : "{$path_or_subdomain}.";
+
+                $d->domain = $subdomain . $domain;
+
+                $d->path = '/';
+
+                return apply_filters('wu_get_site_domain_and_path', $d, $path_or_subdomain, $domain);
+        }
+
+        $d->domain = $domain;
+
+        $d->path = $path_or_subdomain === '' ? '/' : "/{$path_or_subdomain}";
+
+        /**
+         * Allow developers to manipulate the domain/path pairs.
+         *
+         * This can be useful for a number of things, such as implementing some
+         * sort of staging solution, different servers, etc.
+         *
+         * @since 2.0.0
+         * @param object $d The current object containing a domain and path keys.
+         * @param string $path_or_subdomain The original path/subdomain passed to the function.
+         * @param string $domain The resolved base domain used for calculations.
+         * @return object An object containing a domain and path keys.
+         */
+        return apply_filters('wu_get_site_domain_and_path', $d, $path_or_subdomain, $domain);
 }
 
 /**
