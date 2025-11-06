@@ -51,7 +51,9 @@ $wu_register_hide_title_filter = static function ($title, $post_id) {
 add_filter('the_title', $wu_register_hide_title_filter, 10, 2);
 add_action(
         'loop_end',
-        static function () use ($wu_register_hide_title_filter) {
+        static function ($query = null) use ($wu_register_hide_title_filter) {
+                unset($query);
+
                 remove_filter('the_title', $wu_register_hide_title_filter, 10);
         }
 );
