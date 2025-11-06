@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" role="img" aria-labelledby="courseEthicsTitle">
+  <title id="courseEthicsTitle">AI ethics course thumbnail</title>
+  <rect width="240" height="160" rx="20" fill="#eef4ff" />
+  <rect x="36" y="36" width="168" height="88" rx="18" fill="#1a3d91" opacity="0.9" />
+  <path d="M120 56c18 0 32 14 32 32s-14 32-32 32-32-14-32-32 14-32 32-32z" fill="#1f56c1" />
+  <path d="M120 72v32" stroke="#f7faff" stroke-width="6" stroke-linecap="round" />
+  <path d="M104 88h32" stroke="#f7faff" stroke-width="6" stroke-linecap="round" />
+  <circle cx="80" cy="56" r="10" fill="#90c4ff" />
+  <circle cx="160" cy="56" r="10" fill="#90c4ff" />
+</svg>

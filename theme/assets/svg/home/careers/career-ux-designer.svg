@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-labelledby="careerUxTitle">
+  <title id="careerUxTitle">UX designer career icon</title>
+  <rect width="96" height="96" rx="20" fill="#f4f7ff" />
+  <circle cx="48" cy="40" r="14" fill="#1f56c1" opacity="0.2" />
+  <path d="M48 28c8 0 14 6 14 12s-6 12-14 12-14-6-14-12 6-12 14-12z" fill="#1a3d91" />
+  <path d="M32 64c8-6 16-6 24 0" stroke="#0b2855" stroke-width="4" stroke-linecap="round" />
+  <path d="M28 70h40" stroke="#d0ddf6" stroke-width="4" stroke-linecap="round" />
+</svg>

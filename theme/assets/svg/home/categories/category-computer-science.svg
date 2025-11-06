@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160" role="img" aria-labelledby="catCsTitle">
+  <title id="catCsTitle">Computer science category illustration</title>
+  <rect width="200" height="160" rx="24" fill="#eef4ff" />
+  <rect x="40" y="40" width="120" height="80" rx="18" fill="#1a3d91" opacity="0.9" />
+  <rect x="60" y="60" width="80" height="40" rx="10" fill="#f7faff" />
+  <path d="M60 80h-16m112 0h-16" stroke="#1f56c1" stroke-width="6" stroke-linecap="round" />
+  <circle cx="100" cy="80" r="10" fill="#1f56c1" />
+</svg>
