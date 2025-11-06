@@ -74,7 +74,7 @@ if ( ! defined('MULTISITE_ULTIMATE_UPDATE_URL')) {
 require_once __DIR__ . '/constants.php';
 
 try {
-	require_once __DIR__ . '/vendor/autoload_packages.php';
+        require_once __DIR__ . '/vendor/autoload_packages.php';
 } catch ( \Error $exception ) {
 	if ( defined('WP_DEBUG') && WP_DEBUG ) {
 		// This message is not translated as at this point it's too early to load translations.
@@ -103,6 +103,9 @@ try {
 	);
 	return;
 }
+
+require_once __DIR__ . '/services/class-plan-service.php';
+require_once __DIR__ . '/controllers/class-registration-controller.php';
 
 require_once __DIR__ . '/vendor/woocommerce/action-scheduler/action-scheduler.php';
 

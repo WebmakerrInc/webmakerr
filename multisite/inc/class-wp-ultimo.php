@@ -8,6 +8,8 @@
 
 // Exit if accessed directly
 use WP_Ultimo\Addon_Repository;
+use WP_Ultimo\Controllers\Registration_Controller;
+use WP_Ultimo\Services\Plan_Service;
 
 defined('ABSPATH') || exit;
 
@@ -533,6 +535,8 @@ final class WP_Ultimo {
                  * Loads signup orchestration helpers.
                  */
                 \WP_Ultimo\Models\Signup_Service::get_instance();
+                Plan_Service::get_instance();
+                Registration_Controller::get_instance();
 
 		/*
 		 * Loads Documentation
