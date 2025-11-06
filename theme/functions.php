@@ -595,7 +595,3 @@ if (! function_exists('webmakerr_rest_check_license')) {
         );
     }
 }
-
-$GLOBALS['webmakerr_pricing_template_bootstrap_only'] = true;
-require_once get_template_directory().'/page-pricing.php';
-unset($GLOBALS['webmakerr_pricing_template_bootstrap_only']);
