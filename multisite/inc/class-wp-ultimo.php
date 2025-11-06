@@ -524,10 +524,15 @@ final class WP_Ultimo {
 		 */
 		\WP_Ultimo\API::get_instance();
 
-		/*
-		 * Loads API registration endpoint.
-		 */
-		\WP_Ultimo\API\Register_Endpoint::get_instance();
+                /*
+                 * Loads API registration endpoint.
+                 */
+                \WP_Ultimo\API\Register_Endpoint::get_instance();
+
+                /*
+                 * Loads signup orchestration helpers.
+                 */
+                \WP_Ultimo\Models\Signup_Service::get_instance();
 
 		/*
 		 * Loads Documentation

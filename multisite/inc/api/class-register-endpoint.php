@@ -9,10 +9,7 @@
 
 namespace WP_Ultimo\API;
 
-use WP_Ultimo\Checkout\Cart;
-use WP_Ultimo\Database\Sites\Site_Type;
-use WP_Ultimo\Database\Payments\Payment_Status;
-use WP_Ultimo\Database\Memberships\Membership_Status;
+use WP_Ultimo\Models\Signup_Service;
 use WP_Ultimo\Objects\Billing_Address;
 
 // Exit if accessed directly
@@ -95,227 +92,42 @@ class Register_Endpoint {
 	 * @param \WP_REST_Request $request WP Request Object.
 	 * @return array|\WP_Error
 	 */
-	public function handle_endpoint($request) {
+        public function handle_endpoint($request) {
 
-		global $wpdb;
+                $params = json_decode($request->get_body(), true);
 
-		$params = json_decode($request->get_body(), true);
+                if (\WP_Ultimo\API::get_instance()->should_log_api_calls()) {
+                        wu_log_add('api-calls', wp_json_encode($params, JSON_PRETTY_PRINT));
+                }
 
-		if (\WP_Ultimo\API::get_instance()->should_log_api_calls()) {
-			wu_log_add('api-calls', wp_json_encode($params, JSON_PRETTY_PRINT));
-		}
+                $service = Signup_Service::get_instance();
 
-		$validation_errors = $this->validate($params);
+                $validation_errors = $service->validate($params);
 
-		if (is_wp_error($validation_errors)) {
-			$validation_errors->add_data(
-				[
-					'status' => 400,
-				]
-			);
+                if (is_wp_error($validation_errors)) {
+                        $validation_errors->add_data([
+                                'status' => 400,
+                        ]);
 
-			return $validation_errors;
-		}
+                        return $validation_errors;
+                }
 
-		$wpdb->query('START TRANSACTION'); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+                $result = $service->register($params);
 
-		try {
-			$customer = $this->maybe_create_customer($params);
+                if (is_wp_error($result)) {
+                        $data = $result->get_error_data();
 
-			if (is_wp_error($customer)) {
-				return $this->rollback_and_return($customer);
-			}
+                        if ( ! is_array($data) || ! isset($data['status'])) {
+                                $result->add_data([
+                                        'status' => 500,
+                                ]);
+                        }
 
-			$customer->update_last_login(true, true);
+                        return $result;
+                }
 
-			$customer->add_note(
-				[
-					'text'      => __('Created via REST API', 'ultimate-multisite'),
-					'author_id' => $customer->get_user_id(),
-				]
-			);
-
-			/*
-			 * Payment Method defaults
-			 */
-			$payment_method = wp_parse_args(
-				wu_get_isset($params, 'payment_method'),
-				[
-					'gateway'                 => '',
-					'gateway_customer_id'     => '',
-					'gateway_subscription_id' => '',
-					'gateway_payment_id'      => '',
-				]
-			);
-
-			/*
-			 * Cart params and creation
-			 */
-			$cart_params = $params;
-
-			$cart_params = wp_parse_args(
-				$cart_params,
-				[
-					'type' => 'new',
-				]
-			);
-
-			$cart = new Cart($cart_params);
-
-			/*
-			 * Validates if the cart is valid.
-			 */
-			if ($cart->is_valid() && count($cart->get_line_items()) === 0) {
-				return new \WP_Error(
-					'invalid_cart',
-					__('Products are required.', 'ultimate-multisite'),
-					array_merge(
-						(array) $cart->done(),
-						[
-							'status' => 400,
-						]
-					)
-				);
-			}
-
-			/*
-			 * Get Membership data
-			 */
-			$membership_data = $cart->to_membership_data();
-
-			$membership_data = array_merge(
-				$membership_data,
-				wu_get_isset(
-					$params,
-					'membership',
-					[
-						'status' => Membership_Status::PENDING,
-					]
-				)
-			);
-
-			$membership_data['customer_id']             = $customer->get_id();
-			$membership_data['gateway']                 = wu_get_isset($payment_method, 'gateway');
-			$membership_data['gateway_subscription_id'] = wu_get_isset($payment_method, 'gateway_subscription_id');
-			$membership_data['gateway_customer_id']     = wu_get_isset($payment_method, 'gateway_customer_id');
-			$membership_data['auto_renew']              = wu_get_isset($params, 'auto_renew');
-
-			/*
-			 * Unset the status because we are going to transition it later.
-			 */
-			$membership_status = $membership_data['status'];
-
-			unset($membership_data['status']);
-
-			$membership = wu_create_membership($membership_data);
-
-			if (is_wp_error($membership)) {
-				return $this->rollback_and_return($membership);
-			}
-
-			$membership->add_note(
-				[
-					'text'      => __('Created via REST API', 'ultimate-multisite'),
-					'author_id' => $customer->get_user_id(),
-				]
-			);
-
-			$payment_data = $cart->to_payment_data();
-
-			$payment_data = array_merge(
-				$payment_data,
-				wu_get_isset(
-					$params,
-					'payment',
-					[
-						'status' => Payment_Status::PENDING,
-					]
-				)
-			);
-
-			/*
-			 * Unset the status because we are going to transition it later.
-			 */
-			$payment_status = $payment_data['status'];
-
-			unset($payment_data['status']);
-
-			$payment_data['customer_id']        = $customer->get_id();
-			$payment_data['membership_id']      = $membership->get_id();
-			$payment_data['gateway']            = wu_get_isset($payment_method, 'gateway');
-			$payment_data['gateway_payment_id'] = wu_get_isset($payment_method, 'gateway_payment_id');
-
-			$payment = wu_create_payment($payment_data);
-
-			if (is_wp_error($payment)) {
-				return $this->rollback_and_return($payment);
-			}
-
-			$payment->add_note(
-				[
-					'text'      => __('Created via REST API', 'ultimate-multisite'),
-					'author_id' => $customer->get_user_id(),
-				]
-			);
-
-			$site = false;
-
-			/*
-			 * Site creation.
-			 */
-			if (wu_get_isset($params, 'site')) {
-				$site = $this->maybe_create_site($params, $membership);
-
-				if (is_wp_error($site)) {
-					return $this->rollback_and_return($site);
-				}
-			}
-
-			/*
-			 * Deal with status changes.
-			 */
-			if ($membership->get_status() !== $membership_status) {
-				$membership->set_status($membership_status);
-
-				$membership->save();
-
-				/*
-				 * The above change might trigger a site publication
-				 * to take place, so we need to try to fetch the site
-				 * again, this time as a WU Site object.
-				 */
-				if ($site) {
-					$wp_site = get_site_by_path($site['domain'], $site['path']);
-
-					if ($wp_site) {
-						$site['id'] = $wp_site->blog_id;
-					}
-				}
-			}
-
-			if ($payment->get_status() !== $payment_status) {
-				$payment->set_status($payment_status);
-
-				$payment->save();
-			}
-		} catch (\Throwable $e) {
-			$wpdb->query('ROLLBACK'); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-
-			return new \WP_Error('registration_error', $e->getMessage(), ['status' => 500]);
-		}
-
-		$wpdb->query('COMMIT'); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-
-		/*
-		 * We have everything we need now.
-		 */
-		return [
-			'membership' => $membership->to_array(),
-			'customer'   => $customer->to_array(),
-			'payment'    => $payment->to_array(),
-			'site'       => $site ?: ['id' => 0],
-		];
-	}
+                return $result;
+        }
 
 	/**
 	 * Returns the list of arguments allowed on to the endpoint.
@@ -534,183 +346,4 @@ class Register_Endpoint {
 		return apply_filters('wu_rest_register_endpoint_args', $args, $this);
 	}
 
-	/**
-	 * Maybe create a customer, if needed.
-	 *
-	 * @since 2.0.0
-	 *
-	 * @param array $p The request parameters.
-	 * @return \WP_Ultimo\Models\Customer|\WP_Error
-	 */
-	public function maybe_create_customer($p) {
-
-		$customer_id = wu_get_isset($p, 'customer_id');
-
-		if ($customer_id) {
-			$customer = wu_get_customer($customer_id);
-
-			if ( ! $customer) {
-				return new \WP_Error('customer_not_found', __('The customer id sent does not correspond to a valid customer.', 'ultimate-multisite'));
-			}
-		} else {
-			$customer = wu_create_customer($p['customer']);
-		}
-
-		return $customer;
-	}
-
-	/**
-	 * Undocumented function
-	 *
-	 * @since 2.0.0
-	 *
-	 * @param array                        $p The request parameters.
-	 * @param \WP_Ultimo\Models\Membership $membership The membership created.
-	 * @return array|\WP_Ultimo\Models\Site\|\WP_Error
-	 */
-	public function maybe_create_site($p, $membership) {
-
-		$site_data = $p['site'];
-
-		/*
-		 * Let's get a list of membership sites.
-		 * This list includes pending sites as well.
-		 */
-		$sites = $membership->get_sites();
-
-		/*
-		 * Decide if we should create a new site or not.
-		 *
-		 * When should we create a new pending site?
-		 * There are a couple of rules:
-		 * - The membership must not have a pending site;
-		 * - The membership must not have an existing site;
-		 *
-		 * The get_sites method already includes pending sites,
-		 * so we can safely rely on it.
-		 */
-		if ( ! empty($sites)) {
-			/*
-			 * Returns the first site on that list.
-			 * This is not ideal, but since we'll usually only have
-			 * one site here, it's ok. for now.
-			 */
-			return current($sites);
-		}
-
-		$site_url = wu_get_isset($site_data, 'site_url');
-
-		$d = wu_get_site_domain_and_path($site_url);
-
-		/*
-		 * Validates the site url.
-		 */
-		$results = wpmu_validate_blog_signup($site_url, wu_get_isset($site_data, 'site_title'), $membership->get_customer()->get_user());
-
-		if ($results['errors']->has_errors()) {
-			return $results['errors'];
-		}
-
-		/*
-		 * Get the transient data to save with the site
-		 * that way we can use it when actually registering
-		 * the site on WordPress.
-		 */
-		$transient = array_merge(
-			wu_get_isset($site_data, 'site_meta', []),
-			wu_get_isset($site_data, 'site_option', [])
-		);
-
-		$template_id = apply_filters('wu_checkout_template_id', (int) wu_get_isset($site_data, 'template_id'), $membership, $this);
-
-		$site_data = [
-			'domain'         => $d->domain,
-			'path'           => $d->path,
-			'title'          => wu_get_isset($site_data, 'site_title'),
-			'template_id'    => $template_id,
-			'customer_id'    => $membership->get_customer()->get_id(),
-			'membership_id'  => $membership->get_id(),
-			'transient'      => $transient,
-			'signup_meta'    => wu_get_isset($site_data, 'site_meta', []),
-			'signup_options' => wu_get_isset($site_data, 'site_option', []),
-			'type'           => Site_Type::CUSTOMER_OWNED,
-		];
-
-		$membership->create_pending_site($site_data);
-
-		$site_data['id'] = 0;
-
-		if (wu_get_isset($site_data, 'publish')) {
-			$membership->publish_pending_site();
-
-			$wp_site = get_site_by_path($site_data['domain'], $site_data['path']);
-
-			if ($wp_site) {
-				$site_data['id'] = $wp_site->blog_id;
-			}
-		}
-
-		return $site_data;
-	}
-
-	/**
-	 * Set the validation rules for this particular model.
-	 *
-	 * To see how to setup rules, check the documentation of the
-	 * validation library we are using: https://github.com/rakit/validation
-	 *
-	 * @since 2.0.0
-	 * @link https://github.com/rakit/validation
-	 * @return array
-	 */
-	public function validation_rules() {
-
-		return [
-			'customer_id'       => 'required_without:customer',
-			'customer'          => 'required_without:customer_id',
-			'customer.username' => 'required_without_all:customer_id,customer.user_id',
-			'customer.password' => 'required_without_all:customer_id,customer.user_id',
-			'customer.email'    => 'required_without_all:customer_id,customer.user_id',
-			'customer.user_id'  => 'required_without_all:customer_id,customer.username,customer.password,customer.email',
-			'site.site_url'     => 'required_with:site|alpha_num|min:4|lowercase|unique_site',
-			'site.site_title'   => 'required_with:site|min:4',
-		];
-	}
-
-	/**
-	 * Validates the rules and make sure we only save models when necessary.
-	 *
-	 * @since 2.0.0
-	 * @param array $args The params to validate.
-	 * @return mixed[]|\WP_Error
-	 */
-	public function validate($args) {
-
-		$validator = new \WP_Ultimo\Helpers\Validator();
-
-		$validator->validate($args, $this->validation_rules());
-
-		if ($validator->fails()) {
-			return $validator->get_errors();
-		}
-
-		return true;
-	}
-
-	/**
-	 * Rolls back database changes and returns the error passed.
-	 *
-	 * @since 2.0.0
-	 *
-	 * @param \WP_Error $error The error to return.
-	 * @return \WP_Error
-	 */
-	protected function rollback_and_return($error) {
-
-		global $wpdb;
-
-		$wpdb->query('ROLLBACK'); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-
-		return $error;
-	}
 }
