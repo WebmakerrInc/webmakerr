@@ -44,31 +44,15 @@ if ( ! isset($signup->step)) {
 
 <?php if ('plan' !== $signup->step && 'template' !== $signup->step) : ?>
 
-	<p id="nav">
-
-	<?php $i = 1; foreach ($nav_links as $link => $label) : ?>
-
-		<a href="<?php echo esc_attr($link); ?>">
-
-		<?php echo esc_html($label); ?>
-
-		</a>
-
-		<?php
-		if ($i < count($nav_links)) {
-
-			/**
-			 * We need this in order to maintain backwards compatibility with WordPress login page
-		 *
-			 * @since 1.9.2
-			 */
-			echo ' | ';
-			++$i;
-		}
-		?>
-
-	<?php endforeach; ?>
-
-	</p>
+        <nav id="nav" class="flex justify-center" aria-label="Signup secondary navigation">
+                <div class="flex flex-wrap items-center justify-center gap-3">
+                <?php foreach ($nav_links as $link => $label) : ?>
+                        <a class="inline-flex items-center gap-2 rounded-full border border-transparent bg-white/70 px-4 py-2 text-sm font-semibold text-zinc-600 shadow-sm transition hover:border-zinc-200 hover:bg-white hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                                href="<?php echo esc_attr($link); ?>">
+                                <?php echo wp_kses_post($label); ?>
+                        </a>
+                <?php endforeach; ?>
+                </div>
+        </nav>
 
 <?php endif; ?>
