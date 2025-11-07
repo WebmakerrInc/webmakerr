@@ -21,7 +21,7 @@ if ( ! defined('ABSPATH')) {
 
 ?>
 
-<div class="wu-setup-content wu-content-<?php echo isset($is_shortcode) && $is_shortcode ? 'shortcode-plan' : 'plan'; ?>">
+<div class="wu-setup-content wu-content-<?php echo isset($is_shortcode) && $is_shortcode ? 'shortcode-plan' : 'plan'; ?> space-y-10">
 
 <?php
 
@@ -29,7 +29,11 @@ if ( ! defined('ABSPATH')) {
  * Display the frequency selector
  */
 if ( ! isset($is_shortcode) || ! $is_shortcode || $atts['show_selector']) {
-	wu_get_template('/legacy/signup/pricing-table/frequency-selector');
+        ?>
+        <div class="flex justify-center">
+                <?php wu_get_template('/legacy/signup/pricing-table/frequency-selector'); ?>
+        </div>
+        <?php
 }
 
 /**
@@ -41,23 +45,23 @@ if (empty($plans)) {
 } else {
 	?>
 
-	<form id="signupform" method="post">
+        <form id="signupform" method="post" class="space-y-10">
 
-	<?php
+        <?php
 
-	/**
-	 * Required: Prints the essential fields necessary to this form to work properly
+        /**
+         * Required: Prints the essential fields necessary to this form to work properly
 	 */
 	$signup->form_fields($current_plan);
 
 	?>
 
-	<div class="layer plans">
+        <div class="layer plans grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
 
-		<?php
+                <?php
 
-		/**
-		 * Display the plan table
+                /**
+                 * Display the plan table
 		 */
 
 		$count   = count($plans);

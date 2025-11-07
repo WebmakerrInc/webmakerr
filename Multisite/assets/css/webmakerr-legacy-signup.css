@@ -219,30 +219,29 @@ body.wu-legacy-signup-body .wu-plans-frequency-selector a.active {
 
 body.wu-legacy-signup-body .layer.plans {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1.75rem;
+  gap: 1.5rem;
 }
 
 body.wu-legacy-signup-body .wu-plan {
   position: relative;
-  border-radius: 22px;
-  border: 1px solid rgba(228, 228, 231, 0.9);
+  border-radius: 1rem;
+  border: 1px solid rgba(228, 228, 231, 0.85);
   background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 28px 60px rgba(15, 23, 42, 0.16);
-  padding: 2.25rem 2rem;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+  padding: 1.5rem;
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
   overflow: hidden;
 }
 
 body.wu-legacy-signup-body .wu-plan:hover {
-  transform: translateY(-10px);
-  border-color: rgba(44, 127, 255, 0.6);
-  box-shadow: 0 32px 80px rgba(44, 127, 255, 0.22);
+  transform: translateY(-8px);
+  border-color: rgba(44, 127, 255, 0.5);
+  box-shadow: 0 32px 80px rgba(44, 127, 255, 0.2);
 }
 
 body.wu-legacy-signup-body .wu-plan.callout {
-  border-color: rgba(44, 127, 255, 0.7);
-  box-shadow: 0 36px 90px rgba(44, 127, 255, 0.28);
+  border-color: rgba(44, 127, 255, 0.65);
+  box-shadow: 0 36px 90px rgba(44, 127, 255, 0.24);
 }
 
 body.wu-legacy-signup-body .wu-plan h4 {
@@ -284,7 +283,7 @@ body.wu-legacy-signup-body .wu-plan .early-adopter-price {
 
 body.wu-legacy-signup-body .wu-plan ul {
   padding: 0;
-  margin: 1.5rem 0 0;
+  margin: 1rem 0 0;
   list-style: none;
   display: flex;
   flex-direction: column;
@@ -304,6 +303,7 @@ body.wu-legacy-signup-body .wu-plan ul li::before {
   vertical-align: middle;
 }
 
+body.wu-legacy-signup-body .wu-plan ul li.feature-line::before,
 body.wu-legacy-signup-body .wu-plan ul li.wu-cta::before,
 body.wu-legacy-signup-body .wu-plan ul li.total-price::before {
   content: none;
@@ -391,7 +391,7 @@ body.wu-legacy-signup-body .wu-setup-content .wu-summary .summary-total {
 
 @media (max-width: 1024px) {
   body.wu-legacy-signup-body .layer.plans {
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
   }
 }
 

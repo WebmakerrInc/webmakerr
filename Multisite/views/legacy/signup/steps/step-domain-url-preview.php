@@ -21,13 +21,13 @@ if ( ! defined('ABSPATH')) {
 
 ?>
 
-<div id="wu-your-site-block">
+<div id="wu-your-site-block" class="rounded-2xl border border-primary/15 bg-primary/5 px-4 py-3 text-sm font-semibold text-primary">
 
-	<small><?php esc_html_e('Your URL will be', 'ultimate-multisite'); ?></small><br>
+        <span class="block text-xs font-semibold uppercase tracking-[0.26em] text-primary/80"><?php esc_html_e('Your URL will be', 'ultimate-multisite'); ?></span>
 
-	<?php
-	/**
-	 * Change the base, if sub-domain or subdirectory
+        <?php
+        /**
+         * Change the base, if sub-domain or subdirectory
 	 */
 	// This is used on the yoursite.network.com during sign-up
 	$dynamic_part = $signup->results['blogname'] ?? __('yoursite', 'ultimate-multisite');
@@ -35,9 +35,9 @@ if ( ! defined('ABSPATH')) {
 	$site_url = preg_replace('#^https?://#', '', WU_Signup()->get_site_url_for_previewer());
 	$site_url = str_replace('www.', '', $site_url);
 
-	echo is_subdomain_install() ?
-		sprintf('<strong id="wu-your-site" v-html="site_url ? site_url : \'yoursite\'">%s</strong>.<span id="wu-site-domain" v-html="site_domain">%s</span>', esc_html($dynamic_part), esc_html($site_url)) :
-		sprintf('<span id="wu-site-domain" v-html="site_domain">%s</span>/<strong id="wu-your-site" v-html="site_url ? site_url : \'yoursite\'">%s</strong>', esc_html($site_url), esc_html($dynamic_part));
-	?>
+        echo is_subdomain_install() ?
+                sprintf('<strong class="text-base font-semibold text-primary" id="wu-your-site" v-html="site_url ? site_url : \'yoursite\'">%s</strong><span class="text-base font-semibold text-primary">.</span><span class="text-base font-semibold text-primary" id="wu-site-domain" v-html="site_domain">%s</span>', esc_html($dynamic_part), esc_html($site_url)) :
+                sprintf('<span class="text-base font-semibold text-primary" id="wu-site-domain" v-html="site_domain">%s</span><span class="text-base font-semibold text-primary">/</span><strong class="text-base font-semibold text-primary" id="wu-your-site" v-html="site_url ? site_url : \'yoursite\'">%s</strong>', esc_html($site_url), esc_html($dynamic_part));
+        ?>
 
 </div>

@@ -23,11 +23,11 @@ if ( ! defined('ABSPATH')) {
 
 <?php if (wu_get_setting('enable_price_3', true) || wu_get_setting('enable_price_12', true)) : ?>
 
-<ul class="wu-plans-frequency-selector">
+<ul class="wu-plans-frequency-selector inline-flex items-center gap-1 rounded-full border border-white/60 bg-white/90 p-1.5 shadow-[0_20px_44px_rgba(15,23,42,0.12)]">
 
-	<?php
+        <?php
 
-	$prices = [
+        $prices = [
 		1  => __('Monthly', 'ultimate-multisite'),
 		3  => __('Quarterly', 'ultimate-multisite'),
 		12 => __('Yearly', 'ultimate-multisite'),
@@ -42,14 +42,14 @@ if ( ! defined('ABSPATH')) {
 
 		?>
 
-	<li>
-	<a class="<?php echo $first ? 'active first' : ''; ?>" data-frequency-selector="<?php echo esc_attr($type); ?>" href="#">
-		<?php echo esc_html($name); ?>
-	</a>
-	</li>
+        <li class="list-none">
+        <a class="<?php echo $first ? 'active first' : ''; ?> inline-flex items-center justify-center rounded-full px-4 py-2 text-sm font-semibold text-zinc-500 transition hover:bg-primary/10 hover:text-zinc-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white" data-frequency-selector="<?php echo esc_attr($type); ?>" href="#">
+                <?php echo esc_html($name); ?>
+        </a>
+        </li>
 
-		<?php
-		$first = false;
+                <?php
+                $first = false;
 endforeach;
 	?>
 

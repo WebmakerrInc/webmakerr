@@ -21,28 +21,32 @@ if ( ! defined('ABSPATH')) {
 
 ?>
 
-<div class="wu-setup-content wu-content-<?php echo esc_attr($signup->step); ?>">
+<div class="wu-setup-content wu-content-<?php echo esc_attr($signup->step); ?> space-y-6">
 
-	<!-- <p class="message" style="width: 320px; margin-left: auto; margin-right: auto; box-sizing: border-box;">
-	Please enter your username or email address. You will receive a link to create a new password via email.
-	</p> -->
+        <!-- <p class="message" style="width: 320px; margin-left: auto; margin-right: auto; box-sizing: border-box;">
+        Please enter your username or email address. You will receive a link to create a new password via email.
+        </p> -->
 
-	<form name="loginform" id="loginform" method="post">
+        <form name="loginform" id="loginform" method="post" class="space-y-6">
 
-	<?php
+        <?php
 
-	foreach ($fields as $field_slug => $field) {
+        echo '<div class="grid gap-6">';
 
-		/**
-		 * Prints each of our fields using a helper function
-		 */
-		wu_print_signup_field($field_slug, $field, $results);
-	}
+        foreach ($fields as $field_slug => $field) {
 
-	?>
+                /**
+                 * Prints each of our fields using a helper function
+                 */
+                wu_print_signup_field($field_slug, $field, $results);
+        }
 
-	<?php do_action("wp_ultimo_registration_step_$signup->step"); ?>
+        echo '</div>';
 
-	</form>
+        ?>
+
+        <?php do_action("wp_ultimo_registration_step_$signup->step"); ?>
+
+        </form>
 
 </div>

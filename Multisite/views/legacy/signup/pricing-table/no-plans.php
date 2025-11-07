@@ -21,6 +21,6 @@ if ( ! defined('ABSPATH')) {
 
 ?>
 
-<div class="wu-setup-content-error">
-	<p><?php esc_html_e('There are no Plans created in the platform.', 'ultimate-multisite'); ?></p><br>
+<div class="wu-setup-content-error rounded-2xl border border-red-200/70 bg-red-50/80 p-6 text-center shadow-[0_20px_44px_rgba(239,68,68,0.18)]">
+        <p class="text-base font-semibold text-red-700"><?php esc_html_e('There are no Plans created in the platform.', 'ultimate-multisite'); ?></p>
 </div>
