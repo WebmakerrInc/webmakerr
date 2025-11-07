@@ -595,3 +595,14 @@ if (! function_exists('webmakerr_rest_check_license')) {
         );
     }
 }
+
+/**
+ * Disable Gutenberg (block editor) globally.
+ * This forces the Classic (TinyMCE) editor without needing the Classic Editor plugin.
+ */
+add_filter('use_block_editor_for_post', '__return_false', 10);
+add_filter('use_block_editor_for_post_type', '__return_false', 10);
+
+// Optional: remove Gutenberg-related UI notices and scripts.
+add_filter('gutenberg_can_edit_post_type', '__return_false');
+remove_action('try_gutenberg_panel', 'wp_try_gutenberg_panel');
