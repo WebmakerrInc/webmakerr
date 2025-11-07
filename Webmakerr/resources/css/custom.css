@@ -312,4 +312,369 @@
     color: #15803d !important;
     text-decoration: underline !important;
   }
+
+  /*
+   * Webmakerr register & checkout styling overrides
+   * --------------------------------------------------
+   * The WP Ultimo step form inherits neutral defaults which clash with the
+   * Webmakerr theme. These rules align typography, layout, cards, and buttons
+   * with the design language used on page-video.php.
+   */
+  body .wu-clean-steps,
+  body .wu-minimal-steps {
+    display: grid;
+    gap: clamp(0.75rem, 2vw, 1.25rem);
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    margin: 0 auto clamp(1.5rem, 4vw, 2.75rem);
+    padding: 0;
+    max-width: min(960px, 100%);
+    list-style: none;
+  }
+
+  body .wu-clean-steps li,
+  body .wu-minimal-steps li {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: clamp(0.9rem, 2vw, 1.15rem) clamp(1rem, 2.5vw, 1.5rem);
+    border-radius: 999px;
+    border: 1px solid rgba(228, 228, 231, 0.9);
+    background: rgba(244, 244, 245, 0.85);
+    box-shadow: 0 8px 20px -18px rgba(15, 23, 42, 0.25);
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+      'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji',
+      'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  }
+
+  body .wu-clean-steps li .wu-h-2,
+  body .wu-minimal-steps li .wu-minimal-steps-bar {
+    display: block;
+    height: 4px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(44, 127, 255, 0.18) 0%, rgba(24, 24, 28, 0.45) 100%);
+    margin-bottom: 0.4rem;
+  }
+
+  body .wu-minimal-steps li .wu-minimal-steps-bar {
+    order: 3;
+    opacity: 0.35;
+  }
+
+  body .wu-minimal-steps li {
+    align-items: flex-start;
+  }
+
+  body .wu-minimal-steps li.step-current,
+  body .wu-clean-steps li:nth-child(2) {
+    border-color: rgba(44, 127, 255, 0.55);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(240, 244, 255, 0.85) 100%);
+    box-shadow: 0 24px 50px -30px rgba(44, 127, 255, 0.6);
+  }
+
+  body .wu-minimal-steps li.step-done {
+    opacity: 0.7;
+  }
+
+  body .wu-clean-steps li span,
+  body .wu-minimal-steps li span {
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+      'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji',
+      'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  }
+
+  body .wu-clean-steps li span[class*='wu-text-2xs'],
+  body .wu-minimal-steps li .wu-minimal-steps-step-count {
+    font-size: 0.6875rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: rgba(82, 82, 91, 0.95);
+  }
+
+  body .wu-clean-steps li span[class*='wu-text-sm'],
+  body .wu-minimal-steps li .wu-minimal-steps-step-label {
+    font-size: clamp(0.95rem, 1vw + 0.75rem, 1.05rem);
+    font-weight: 600;
+    color: #111827;
+  }
+
+  body .wu-styling {
+    position: relative;
+    width: min(960px, 100%);
+    margin: clamp(1.5rem, 5vw, 3rem) auto;
+    padding: clamp(1.75rem, 5vw, 3rem);
+    border-radius: 22px;
+    border: 1px solid rgba(228, 228, 231, 0.9);
+    background: linear-gradient(180deg, #ffffff 0%, rgba(248, 250, 252, 0.92) 100%);
+    box-shadow: 0 40px 80px -48px rgba(15, 23, 42, 0.45);
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+      'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji',
+      'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    color: #101828;
+  }
+
+  body .wu-styling::before {
+    content: '';
+    position: absolute;
+    inset: -24px;
+    z-index: -1;
+    border-radius: 28px;
+    background: radial-gradient(circle at top, rgba(44, 127, 255, 0.18), transparent 65%),
+      radial-gradient(circle at bottom, rgba(24, 24, 28, 0.12), transparent 55%);
+  }
+
+  body .wu-styling .wu-checkout-section-title {
+    margin-bottom: 1.75rem;
+    font-size: clamp(1.5rem, 1.35rem + 1vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #0f172a;
+  }
+
+  body .wu-styling > * + * {
+    margin-top: clamp(1.5rem, 4vw, 2.75rem);
+  }
+
+  body .wu-styling label.wu-block {
+    display: block;
+    margin-bottom: 0.75rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: #111827;
+  }
+
+  body .wu-styling .wu-checkout-required-field {
+    margin-left: 0.25rem;
+    color: #ef4444 !important;
+  }
+
+  body .wu-styling input.form-control,
+  body .wu-styling select.form-control,
+  body .wu-styling textarea.form-control,
+  body .wu-styling input[type='text'],
+  body .wu-styling input[type='email'],
+  body .wu-styling input[type='password'],
+  body .wu-styling input[type='tel'],
+  body .wu-styling input[type='number'],
+  body .wu-styling select,
+  body .wu-styling textarea {
+    width: 100%;
+    border-radius: 14px;
+    border: 1px solid #d4d4d8;
+    background-color: #ffffff;
+    padding: 0.85rem 1rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #0f172a;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    box-shadow: 0 1px 1px rgba(15, 23, 42, 0.04);
+  }
+
+  body .wu-styling input.form-control:focus,
+  body .wu-styling select.form-control:focus,
+  body .wu-styling textarea.form-control:focus,
+  body .wu-styling input[type='text']:focus,
+  body .wu-styling input[type='email']:focus,
+  body .wu-styling input[type='password']:focus,
+  body .wu-styling input[type='tel']:focus,
+  body .wu-styling input[type='number']:focus,
+  body .wu-styling select:focus,
+  body .wu-styling textarea:focus {
+    border-color: #2c7fff;
+    box-shadow: 0 0 0 4px rgba(44, 127, 255, 0.15);
+    outline: none;
+  }
+
+  body .wu-styling input.form-control::placeholder,
+  body .wu-styling textarea.form-control::placeholder,
+  body .wu-styling input::placeholder,
+  body .wu-styling textarea::placeholder {
+    color: #6b7280;
+    opacity: 0.9;
+  }
+
+  body .wu-styling input[type='checkbox']:not(.wu-hidden),
+  body .wu-styling input[type='radio']:not(.wu-hidden) {
+    width: 1.1rem;
+    height: 1.1rem;
+    border-radius: 0.5rem;
+    border: 1px solid #cbd5f5;
+    accent-color: #2c7fff;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+  }
+
+  body .wu-styling input[type='radio']:not(.wu-hidden) {
+    border-radius: 999px;
+  }
+
+  body .wu-styling span[v-cloak][class*='wu-bg-red'] {
+    display: block;
+    border-radius: 14px;
+    border: 1px solid rgba(248, 113, 113, 0.55);
+    background: rgba(254, 226, 226, 0.9);
+    color: #b91c1c;
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.85rem 1rem;
+  }
+
+  body .wu-styling .wu-grid {
+    display: grid;
+    gap: clamp(1.25rem, 4vw, 1.75rem);
+  }
+
+  @media (min-width: 768px) {
+    body .wu-styling .wu-grid.wu-grid-cols-2,
+    body .wu-styling .wu-grid.wu-grid-cols-3 {
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+  }
+
+  body .wu-styling label[for^='field-products-'] {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.75rem, 2vw, 1rem);
+    padding: clamp(1.25rem, 4vw, 1.75rem);
+    border-radius: 20px;
+    border: 1px solid rgba(228, 228, 231, 0.9);
+    background: linear-gradient(180deg, #ffffff 0%, rgba(248, 250, 252, 0.95) 100%);
+    box-shadow: 0 28px 60px -40px rgba(15, 23, 42, 0.45);
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+    text-decoration: none;
+  }
+
+  body .wu-styling label[for^='field-products-']:hover {
+    transform: translateY(-4px);
+    border-color: rgba(44, 127, 255, 0.45);
+    box-shadow: 0 36px 75px -40px rgba(44, 127, 255, 0.55);
+  }
+
+  body .wu-styling label[for^='field-products-'] .wu-flex {
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+
+  body .wu-styling label[for^='field-products-'] span.wu-font-semibold {
+    font-size: clamp(1.1rem, 0.9rem + 0.6vw, 1.35rem);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #0f172a;
+  }
+
+  body .wu-styling label[for^='field-products-'] .wu-text-gray-600,
+  body .wu-styling label[for^='field-products-'] p {
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: #52525b;
+  }
+
+  body .wu-styling label[for^='field-products-'] .wu-font-semibold.wu-text-gray-900 {
+    font-size: clamp(1.05rem, 0.9rem + 0.4vw, 1.25rem);
+    color: #0f172a;
+  }
+
+  body .wu-styling label[for^='field-products-'] .wu-text-sm {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #6366f1;
+  }
+
+  body .wu-styling label[for^='field-products-'] .wu-pointer-events-none {
+    border-radius: 20px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  body .wu-styling label[for^='field-products-'] .wu-border-blue-500 {
+    border-color: #2c7fff !important;
+    box-shadow: inset 0 0 0 1px rgba(44, 127, 255, 0.18), 0 36px 80px -38px rgba(44, 127, 255, 0.6);
+  }
+
+  body .wu-styling label[for^='field-products-'] input[type='checkbox'] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  body .wu-styling .button,
+  body .wu-styling button,
+  body .wu-styling [type='submit'] {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 999px;
+    border: 1px solid #18181c;
+    background: #18181c;
+    color: #ffffff;
+    padding: 0.95rem 1.85rem;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+    box-shadow: 0 20px 40px -24px rgba(24, 24, 28, 0.65);
+  }
+
+  body .wu-styling .button:hover,
+  body .wu-styling button:hover,
+  body .wu-styling [type='submit']:hover {
+    transform: translateY(-2px);
+    background: #101013;
+    border-color: #101013;
+    box-shadow: 0 28px 60px -30px rgba(24, 24, 28, 0.7);
+  }
+
+  body .wu-styling .button:focus-visible,
+  body .wu-styling button:focus-visible,
+  body .wu-styling [type='submit']:focus-visible {
+    outline: 3px solid rgba(44, 127, 255, 0.4);
+    outline-offset: 3px;
+  }
+
+  body .wu-styling .button[disabled],
+  body .wu-styling button[disabled],
+  body .wu-styling [type='submit'][disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  body .wu-styling .wu-text-gray-500 {
+    color: #6b7280;
+  }
+
+  body .wu-styling .wu-text-gray-900 {
+    color: #0f172a;
+  }
+
+  body .wu-styling .wu-text-blue-600,
+  body .wu-styling .wu-text-blue-500 {
+    color: #2c7fff !important;
+  }
+
+  body .wu-styling .wu-mt-2 > .wu-col-span-2 {
+    margin-top: 0;
+  }
+
+  @media (max-width: 640px) {
+    body .wu-styling {
+      padding: 1.5rem;
+      border-radius: 18px;
+    }
+
+    body .wu-styling .wu-grid {
+      gap: 1.25rem;
+    }
+
+    body .wu-clean-steps,
+    body .wu-minimal-steps {
+      grid-template-columns: 1fr;
+    }
+  }
 }
