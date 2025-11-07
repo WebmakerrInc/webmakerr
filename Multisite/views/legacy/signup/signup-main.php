@@ -51,6 +51,33 @@ foreach ($admin_actions as $action => $handlers) {
 
 do_action('wu_checkout_scripts');
 
+$theme_stylesheet       = trailingslashit(get_stylesheet_directory()) . 'build/assets/app.css';
+$theme_stylesheet_uri   = trailingslashit(get_stylesheet_directory_uri()) . 'build/assets/app.css';
+$webmakerr_override     = trailingslashit(WP_ULTIMO_PLUGIN_DIR) . 'assets/css/webmakerr-legacy-signup.css';
+$webmakerr_override_uri = trailingslashit(WP_ULTIMO_PLUGIN_URL) . 'assets/css/webmakerr-legacy-signup.css';
+
+$has_theme_stylesheet = file_exists($theme_stylesheet);
+
+if ($has_theme_stylesheet) {
+        wp_enqueue_style(
+                'webmakerr-legacy-signup-theme',
+                $theme_stylesheet_uri,
+                [],
+                (string) filemtime($theme_stylesheet)
+        );
+}
+
+if (file_exists($webmakerr_override)) {
+        $deps = $has_theme_stylesheet ? ['webmakerr-legacy-signup-theme'] : [];
+
+        wp_enqueue_style(
+                'wu-legacy-signup-webmakerr',
+                $webmakerr_override_uri,
+                $deps,
+                (string) filemtime($webmakerr_override)
+        );
+}
+
 ?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" <?php language_attributes(); ?>>
