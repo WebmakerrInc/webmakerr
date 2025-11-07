@@ -52,34 +52,36 @@ if (empty($plans)) {
 
 	?>
 
-	<div class="layer plans">
+        <div class="layer plans mt-10">
 
-		<?php
+                <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 
-		/**
-		 * Display the plan table
-		 */
+                <?php
 
-		$count   = count($plans);
-		$columns = 5 === $count ? '2-4' : 12 / $count;
+                /**
+                 * Display the plan table
+                 */
 
-		foreach ($plans as $plan) {
-			wu_get_template(
-				'legacy/signup/pricing-table/plan',
-				[
-					'plan'         => $plan,
-					'count'        => $count,
-					'columns'      => $columns,
-					'current_plan' => $current_plan,
-				]
-			);
-		}
+                $count   = count($plans);
+                $columns = 5 === $count ? '2-4' : 12 / $count;
 
-		?>
+                foreach ($plans as $plan) {
+                        wu_get_template(
+                                'legacy/signup/pricing-table/plan',
+                                [
+                                        'plan'         => $plan,
+                                        'count'        => $count,
+                                        'columns'      => $columns,
+                                        'current_plan' => $current_plan,
+                                ]
+                        );
+                }
 
-		<div style="clear: both"></div>
+                ?>
 
-	</div>
+                </div>
+
+        </div>
 
 	</form>
 
@@ -92,4 +94,9 @@ if (empty($plans)) {
 <?php
 wp_enqueue_script('wu-pricing-table', wu_get_asset('pricing-table.js', 'js'), ['jquery'], wu_get_version(), true);
 wp_add_inline_script('wu-pricing-table', 'var wu_default_pricing_option = "' . esc_js(wu_get_setting('default_pricing_option', 1)) . '";', 'before');
+wp_add_inline_script(
+        'wu-pricing-table',
+        "jQuery(function($){\n        $(document).on('click', '.wu-plans-frequency-selector a', function(){\n                var $link = $(this);\n                var $group = $link.closest('.wu-plans-frequency-selector');\n                $group.find('a')\n                        .attr('aria-pressed', 'false')\n                        .removeClass('active bg-zinc-900 text-white')\n                        .addClass('bg-white text-zinc-600 hover:bg-zinc-100');\n                $link\n                        .attr('aria-pressed', 'true')\n                        .addClass('active bg-zinc-900 text-white')\n                        .removeClass('bg-white text-zinc-600 hover:bg-zinc-100');\n        });\n});",
+        'after'
+);
 ?>
