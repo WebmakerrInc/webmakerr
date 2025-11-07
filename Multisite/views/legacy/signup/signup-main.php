@@ -75,14 +75,14 @@ do_action('wu_checkout_scripts');
 
 	</head>
 
-	<body class="login wp-core-ui wu-legacy-signup-body">
+        <body class="wu-legacy-signup-body bg-slate-50 text-zinc-900">
 
 	<?php
 	while (have_posts()) :
 		the_post();
 		?>
 
-		<div class="wu-setup">
+                <div class="wu-setup min-h-screen py-10">
 
 		<?php
 			/**
@@ -94,14 +94,16 @@ do_action('wu_checkout_scripts');
 
 		?>
 
-		<div id="login">
+                <div class="wu-legacy-signup__container mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
 
-			<h1 id="wu-setup-logo">
-			<a href="<?php echo esc_attr(get_site_url(get_current_site()->site_id)); ?>">
-				<?php // translators: %s title of the current site ?>
-				<?php printf(esc_html__('%s - Signup', 'ultimate-multisite'), esc_html(get_bloginfo('Name'))); ?>
-			</a>
-			</h1>
+                        <div class="text-center">
+                        <h1 id="wu-setup-logo" class="text-3xl font-semibold text-zinc-950 sm:text-4xl">
+                        <a class="text-inherit no-underline hover:text-zinc-700" href="<?php echo esc_attr(get_site_url(get_current_site()->site_id)); ?>">
+                                <?php // translators: %s title of the current site ?>
+                                <?php printf(esc_html__('%s - Signup', 'ultimate-multisite'), esc_html(get_bloginfo('Name'))); ?>
+                        </a>
+                        </h1>
+                        </div>
 
 			<?php
 			/**
@@ -111,9 +113,9 @@ do_action('wu_checkout_scripts');
 
 			?>
 
-			<div class="wu-setup-content wu-content-<?php echo esc_attr(wu_request('step', $signup->step ?? 'default')); ?>">
+                        <div class="wu-setup-content wu-content-<?php echo esc_attr(wu_request('step', $signup->step ?? 'default')); ?> mt-10 rounded-2xl bg-white p-8 shadow-xl ring-1 ring-zinc-200">
 
-			<div name="loginform" id="loginform">
+                        <div class="wu-legacy-signup__form space-y-8">
 
 				<?php the_content(); ?>
 
@@ -129,21 +131,23 @@ do_action('wu_checkout_scripts');
 
 			?>
 
-			<?php
-			/**
-			 * Nav Links
-			 */
-			wu_get_template('legacy/signup/signup-nav-links', ['signup' => $signup]);
-			?>
+                        <?php
+                        /**
+                         * Nav Links
+                         */
+                        wu_get_template('legacy/signup/signup-nav-links', ['signup' => $signup]);
+                        ?>
 
-		</div> <!-- /login -->
+                </div>
 
-		<?php
-			/**
-			 * Navigation Steps
-			 */
-			wu_get_template('legacy/signup/signup-steps-navigation', ['signup' => $signup]);
-		?>
+                <div class="mx-auto mt-12 w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+                        <?php
+                        /**
+                         * Navigation Steps
+                         */
+                        wu_get_template('legacy/signup/signup-steps-navigation', ['signup' => $signup]);
+                        ?>
+                </div>
 
 		<?php
 			/**

@@ -23,7 +23,7 @@ if ( ! defined('ABSPATH')) {
 
 <?php if (wu_get_setting('enable_price_3', true) || wu_get_setting('enable_price_12', true)) : ?>
 
-<ul class="wu-plans-frequency-selector">
+<ul class="wu-plans-frequency-selector mt-6 flex flex-wrap items-center justify-center gap-3">
 
 	<?php
 
@@ -42,11 +42,11 @@ if ( ! defined('ABSPATH')) {
 
 		?>
 
-	<li>
-	<a class="<?php echo $first ? 'active first' : ''; ?>" data-frequency-selector="<?php echo esc_attr($type); ?>" href="#">
-		<?php echo esc_html($name); ?>
-	</a>
-	</li>
+        <li>
+        <a class="inline-flex items-center rounded-full border border-transparent px-4 py-2 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zinc-900 <?php echo $first ? 'active first bg-zinc-900 text-white' : 'bg-white text-zinc-600 hover:bg-zinc-100'; ?>" data-frequency-selector="<?php echo esc_attr($type); ?>" href="#" aria-pressed="<?php echo $first ? 'true' : 'false'; ?>">
+                <?php echo esc_html($name); ?>
+        </a>
+        </li>
 
 		<?php
 		$first = false;
